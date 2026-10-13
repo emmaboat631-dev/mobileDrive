@@ -19,7 +19,7 @@ export default function VehiclesPage() {
           Explore Vehicles
         </h1>
         <p className="mt-3 max-w-md text-ink-200">
-          Browse 120+ curated demo vehicles. Open any to enter the 3D configurator.
+          Browse our curated inventory. Open any vehicle to enter the 3D configurator.
         </p>
       </div>
 
@@ -40,9 +40,6 @@ export default function VehiclesPage() {
         >
           <SlidersHorizontal className="h-4 w-4" />
           Filters
-          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1 text-[10px] font-semibold text-ink-900">
-            3
-          </span>
         </button>
         <button
           type="button"
@@ -56,7 +53,7 @@ export default function VehiclesPage() {
       {/* Results count + view toggle */}
       <div className="mt-6 mb-6 flex items-center justify-between">
         <div className="text-sm text-ink-200">
-          Showing {vehicles.length} of 120 vehicles
+          Showing {vehicles.length} {vehicles.length === 1 ? 'vehicle' : 'vehicles'}
         </div>
         <div className="flex rounded-full border border-white/10 bg-ink-700 p-0.5">
           <button
@@ -87,31 +84,6 @@ export default function VehiclesPage() {
               <VehicleCard key={v.id} vehicle={v} />
             ))}
           </div>
-
-          {/* Pagination */}
-          <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-1.5">
-            {['‹', '1', '2', '3', '…', '12', '›'].map((p, i) => {
-              const active = p === '1';
-              const spacer = p === '…';
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  disabled={spacer}
-                  className={
-                    'flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition ' +
-                    (spacer
-                      ? 'text-ink-200'
-                      : active
-                        ? 'bg-white text-ink-900'
-                        : 'border border-white/10 text-ink-100 hover:bg-white/5 hover:text-white')
-                  }
-                >
-                  {p}
-                </button>
-              );
-            })}
-          </nav>
 
           <p className="mt-10 text-xs text-ink-300">
             Demo inventory. Pricing and specifications are illustrative.

@@ -4,6 +4,9 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { listVehicles } from '@/lib/vehicles/data';
+
+const VEHICLE_COUNT = listVehicles().length;
 
 const CarViewer = dynamic(
   () => import('@/components/3d/CarViewer').then((m) => m.CarViewer),
@@ -91,7 +94,7 @@ export function Hero() {
 
         {/* Signal row */}
         <div className="mt-6 grid grid-cols-2 gap-3 text-sm md:mt-10 md:grid-cols-4">
-          <Signal label="Vehicles" value="120+" hint="Curated inventory" />
+          <Signal label="Vehicles" value={`${VEHICLE_COUNT}`} hint="Curated inventory" />
           <Signal label="Build time" value="< 2 min" hint="Configure in 3D" />
           <Signal label="Delivery" value="Nationwide" hint="Door to door" />
           <Signal label="Support" value="24/7" hint="Specialist concierge" />

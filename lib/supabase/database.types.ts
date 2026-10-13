@@ -18,6 +18,7 @@ export interface Database {
           avatar_url: string | null;
           phone: string | null;
           region: 'US' | 'GH' | 'EU' | null;
+          role: 'customer' | 'dealer' | 'admin';
           created_at: string;
           updated_at: string;
         };
@@ -28,6 +29,7 @@ export interface Database {
           avatar_url?: string | null;
           phone?: string | null;
           region?: 'US' | 'GH' | 'EU' | null;
+          role?: 'customer' | 'dealer' | 'admin';
         };
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
       };

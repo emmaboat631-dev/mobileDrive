@@ -3,20 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home, Car, Heart, Zap, Package, Calendar, CreditCard, MessageSquare, Settings,
+  Home, Heart, Zap, Package, Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 const NAV = [
-  { href: '/account',             icon: Home,           label: 'Overview' },
-  { href: '/account/my-vehicles', icon: Car,            label: 'My Vehicles' },
-  { href: '/account/wishlist',    icon: Heart,          label: 'Wishlist' },
-  { href: '/account/builds',      icon: Zap,            label: 'Builds' },
-  { href: '/account/orders',      icon: Package,        label: 'Orders' },
-  { href: '/account/test-drives', icon: Calendar,       label: 'Test drives' },
-  { href: '/account/payments',    icon: CreditCard,     label: 'Payments' },
-  { href: '/account/messages',    icon: MessageSquare,  label: 'Messages' },
-  { href: '/account/settings',    icon: Settings,       label: 'Settings' },
+  { href: '/account',          icon: Home,     label: 'Overview' },
+  { href: '/account/wishlist', icon: Heart,    label: 'Wishlist' },
+  { href: '/account/builds',   icon: Zap,      label: 'Builds' },
+  { href: '/account/orders',   icon: Package,  label: 'Orders' },
+  { href: '/account/settings', icon: Settings, label: 'Settings' },
 ];
 
 export function AccountShell({ children }: { children: React.ReactNode }) {

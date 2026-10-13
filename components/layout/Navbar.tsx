@@ -7,10 +7,9 @@ import { cn } from '@/lib/utils/cn';
 import { useCart } from '@/store/cartStore';
 
 const NAV_ITEMS = [
-  { href: '/vehicles', label: 'Explore' },
   { href: '/vehicles', label: 'Vehicles' },
   { href: '/compare', label: 'Compare' },
-  { href: '/deals', label: 'Deals' },
+  { href: '/configure/m4-competition', label: 'Configure' },
 ];
 
 export function Navbar() {

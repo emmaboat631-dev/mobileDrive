@@ -34,14 +34,38 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
 
-  const protectedPaths = ['/account', '/checkout'];
-  const requiresAuth = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p));
+  const protectedPaths = ['/account', '/checkout', '/admin', '/dealer'];
+  const requiresAuth = protectedPaths.some((p) => pathname.startsWith(p));
   if (requiresAuth && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';
-    url.searchParams.set('next', request.nextUrl.pathname);
+    url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Role-gated areas. profiles.role is 'customer' | 'dealer' | 'admin' (added in 0002).
+  const needsRole: 'admin' | 'dealer' | null = pathname.startsWith('/admin')
+    ? 'admin'
+    : pathname.startsWith('/dealer')
+      ? 'dealer'
+      : null;
+
+  if (needsRole && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+    const role = (profile as { role?: string } | null)?.role;
+    const allowed = role === 'admin' || (needsRole === 'dealer' && role === 'dealer');
+    if (!allowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      url.searchParams.set('forbidden', '1');
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;
