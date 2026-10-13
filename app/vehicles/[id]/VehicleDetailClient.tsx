@@ -177,7 +177,7 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
               </Link>
               <div className="grid grid-cols-2 gap-2.5">
                 <button type="button" className="btn-secondary w-full">Book Test Drive</button>
-                <Link href="/compare" className="btn-secondary w-full">
+                <Link href={`/compare?v=${vehicle.id}`} className="btn-secondary w-full">
                   <Plus className="h-4 w-4" />
                   Compare
                 </Link>
