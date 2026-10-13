@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__44525d98-29c1-4753-afd8-34310a4e9659__use_figma",
+      "mcp__44525d98-29c1-4753-afd8-34310a4e9659__get_screenshot",
+      "Bash(curl -s -L -o \"C:/Users/NIMAKO/AppData/Local/Temp/claude/C--Users-NIMAKO-Desktop-Projects-mobileDrive/b0b032c1-85ff-4c08-acc4-4304c3d1f3ee/scratchpad/landing-preview.png\" \"https://www.figma.com/api/mcp/asset/e2aaefda-402f-40ba-87b2-fd62da3550cb.png\")",
+      "Bash(curl -s -L -o detail-preview.png \"https://www.figma.com/api/mcp/asset/7c7d19cd-69ce-43f2-810c-577007220e14.png\")",
+      "Bash(curl -s -L -o config-preview.png \"https://www.figma.com/api/mcp/asset/f060f1e0-9b8f-4c27-9d45-bd253ffe9f61.png\")",
+      "Bash(curl -s -L -o marketplace.png \"https://www.figma.com/api/mcp/asset/33697f20-8e8e-45b1-8776-9b661c2d07dd.png\")",
+      "Bash(curl -s -L -o compare.png \"https://www.figma.com/api/mcp/asset/60921ebb-e956-4c9f-b2b7-8d18deec2689.png\")",
+      "Bash(curl -s -L -o cart.png \"https://www.figma.com/api/mcp/asset/b55d6b9a-6cdd-45e3-8627-8ea339db1d21.png\")",
+      "Bash(curl -s -L -o checkout.png \"https://www.figma.com/api/mcp/asset/5c78adc2-4b6b-4c5c-a2ba-a44691cbf4a7.png\")",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

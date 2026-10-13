@@ -1,0 +1,201 @@
+import type { Vehicle } from '@/types/vehicle';
+
+const COMMON_COLORS = [
+  { id: 'arctic-silver', name: 'Arctic Silver', hex: '#C8CCD0', finish: 'metallic', priceDelta: 0 },
+  { id: 'obsidian-black', name: 'Obsidian Black', hex: '#0B0B0D', finish: 'metallic', priceDelta: 0 },
+  { id: 'midnight-blue', name: 'Midnight Blue', hex: '#0F2341', finish: 'metallic', priceDelta: 900 },
+  { id: 'racing-red', name: 'Racing Red', hex: '#9C1A1A', finish: 'solid', priceDelta: 600 },
+  { id: 'pearl-white', name: 'Pearl White', hex: '#EDEDE8', finish: 'pearl', priceDelta: 1400 },
+  { id: 'graphite', name: 'Graphite Matte', hex: '#2A2D33', finish: 'matte', priceDelta: 2200 },
+] as const;
+
+const COMMON_WHEELS = [
+  { id: 'sport', name: 'Sport', style: 'sport', priceDelta: 0 },
+  { id: 'performance', name: 'Performance', style: 'performance', priceDelta: 2500 },
+  { id: 'carbon', name: 'Carbon Forged', style: 'carbon', priceDelta: 4800 },
+  { id: 'luxury', name: 'Luxury', style: 'luxury', priceDelta: 1800 },
+] as const;
+
+const COMMON_INTERIORS = [
+  { id: 'black', name: 'Black Merino', seatHex: '#17181B', trimHex: '#2A2B2E', priceDelta: 0 },
+  { id: 'tan', name: 'Tan Nappa', seatHex: '#B8926A', trimHex: '#6B4F35', priceDelta: 1200 },
+  { id: 'red', name: 'Fiord Red', seatHex: '#7A1C1F', trimHex: '#2A2B2E', priceDelta: 1800 },
+  { id: 'white', name: 'Silverstone White', seatHex: '#E6E4DF', trimHex: '#1A1B1E', priceDelta: 1500 },
+] as const;
+
+const COMMON_PACKAGES = [
+  {
+    id: 'driver-assist',
+    name: 'Advanced Driver Package',
+    description: 'Adaptive cruise, lane assist, surround cameras.',
+    priceDelta: 3200,
+  },
+  {
+    id: 'carbon-exterior',
+    name: 'Carbon Exterior',
+    description: 'Front splitter, side skirts, rear diffuser in exposed carbon.',
+    priceDelta: 4800,
+  },
+  {
+    id: 'bowers-wilkins',
+    name: 'Premium Audio',
+    description: 'Reference 16-speaker system with active noise cancellation.',
+    priceDelta: 2900,
+  },
+];
+
+export const VEHICLES: Vehicle[] = [
+  {
+    id: 'm4-competition',
+    brand: 'BMW',
+    model: 'M4 Competition',
+    year: 2025,
+    price: 82400,
+    currency: 'USD',
+    bodyType: 'Coupe',
+    fuelType: 'Petrol',
+    transmission: 'DCT',
+    driveType: 'RWD',
+    horsepower: 503,
+    acceleration: 3.9,
+    topSpeed: 290,
+    description:
+      'A track-sharpened grand tourer. Twin-turbocharged inline-six, carbon roof, launch control, and a chassis tuned for both circuit and street.',
+    features: ['Carbon roof', 'Adaptive M suspension', 'M Drive Professional', 'Launch Control'],
+    images: [],
+    heroColorId: 'midnight-blue',
+    availableColors: [...COMMON_COLORS],
+    availableWheels: [...COMMON_WHEELS],
+    availableInteriors: [...COMMON_INTERIORS],
+    availablePackages: COMMON_PACKAGES,
+  },
+  {
+    id: 'porsche-911',
+    brand: 'Porsche',
+    model: '911 Carrera',
+    year: 2025,
+    price: 116400,
+    currency: 'USD',
+    bodyType: 'Sports',
+    fuelType: 'Petrol',
+    transmission: 'DCT',
+    driveType: 'RWD',
+    horsepower: 388,
+    acceleration: 4.1,
+    topSpeed: 294,
+    description: 'The icon, refined. Flat-six engineering, telepathic handling, timeless silhouette.',
+    features: ['Sport Chrono', 'PASM', 'Sport exhaust', 'Launch Control'],
+    images: [],
+    heroColorId: 'racing-red',
+    availableColors: [...COMMON_COLORS],
+    availableWheels: [...COMMON_WHEELS],
+    availableInteriors: [...COMMON_INTERIORS],
+    availablePackages: COMMON_PACKAGES,
+  },
+  {
+    id: 'tesla-model-s',
+    brand: 'Tesla',
+    model: 'Model S',
+    year: 2025,
+    price: 94990,
+    currency: 'USD',
+    bodyType: 'Electric',
+    fuelType: 'Electric',
+    transmission: 'Automatic',
+    driveType: 'AWD',
+    horsepower: 670,
+    acceleration: 3.1,
+    topSpeed: 250,
+    rangeKm: 652,
+    description: 'All-electric performance sedan with yoke-free steering and tri-motor dynamics.',
+    features: ['Autopilot', 'Glass roof', '17" display', 'Over-the-air updates'],
+    images: [],
+    heroColorId: 'pearl-white',
+    availableColors: [...COMMON_COLORS],
+    availableWheels: [...COMMON_WHEELS],
+    availableInteriors: [...COMMON_INTERIORS],
+    availablePackages: COMMON_PACKAGES,
+  },
+  {
+    id: 'amg-gt',
+    brand: 'Mercedes-AMG',
+    model: 'GT',
+    year: 2025,
+    price: 136000,
+    currency: 'USD',
+    bodyType: 'Coupe',
+    fuelType: 'Petrol',
+    transmission: 'DCT',
+    driveType: 'AWD',
+    horsepower: 577,
+    acceleration: 3.1,
+    topSpeed: 315,
+    description: 'A hand-built V8 grand tourer with long-hood proportions and a race-bred chassis.',
+    features: ['AMG Performance 4MATIC+', 'Active aero', 'Ceramic brakes', 'Burmester 3D'],
+    images: [],
+    heroColorId: 'obsidian-black',
+    availableColors: [...COMMON_COLORS],
+    availableWheels: [...COMMON_WHEELS],
+    availableInteriors: [...COMMON_INTERIORS],
+    availablePackages: COMMON_PACKAGES,
+  },
+  {
+    id: 'audi-rs6',
+    brand: 'Audi',
+    model: 'RS6 Avant',
+    year: 2025,
+    price: 128000,
+    currency: 'USD',
+    bodyType: 'Luxury',
+    fuelType: 'Petrol',
+    transmission: 'Automatic',
+    driveType: 'AWD',
+    horsepower: 621,
+    acceleration: 3.4,
+    topSpeed: 305,
+    description: 'Wagon practicality, supercar pace. A twin-turbo V8 wrapped in understated carbon.',
+    features: ['Quattro', 'Dynamic Ride Control', 'Matrix LED', 'B&O 3D audio'],
+    images: [],
+    heroColorId: 'graphite',
+    availableColors: [...COMMON_COLORS],
+    availableWheels: [...COMMON_WHEELS],
+    availableInteriors: [...COMMON_INTERIORS],
+    availablePackages: COMMON_PACKAGES,
+  },
+  {
+    id: 'range-rover-sport',
+    brand: 'Range Rover',
+    model: 'Sport',
+    year: 2025,
+    price: 97000,
+    currency: 'USD',
+    bodyType: 'SUV',
+    fuelType: 'Hybrid',
+    transmission: 'Automatic',
+    driveType: 'AWD',
+    horsepower: 510,
+    acceleration: 5.3,
+    topSpeed: 250,
+    description: 'A command driving position with the composure of a GT and the capability of a Land Rover.',
+    features: ['Air suspension', 'Terrain Response', 'Meridian audio', 'All-wheel steering'],
+    images: [],
+    heroColorId: 'pearl-white',
+    availableColors: [...COMMON_COLORS],
+    availableWheels: [...COMMON_WHEELS],
+    availableInteriors: [...COMMON_INTERIORS],
+    availablePackages: COMMON_PACKAGES,
+  },
+];
+
+export function getVehicleById(id: string): Vehicle | undefined {
+  return VEHICLES.find((v) => v.id === id);
+}
+
+export function listVehicles(): Vehicle[] {
+  return VEHICLES;
+}
+
+/** The paint we show the vehicle in on cards, compare and marketing — falls back to the first color. */
+export function getHeroColor(v: Vehicle) {
+  return v.availableColors.find((c) => c.id === v.heroColorId) ?? v.availableColors[0];
+}

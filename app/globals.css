@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: #07080A;
+  color: #EEF0F3;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+::selection {
+  background: #EEF0F3;
+  color: #07080A;
+}
+
+@layer base {
+  * {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1400px] px-5 md:px-8 lg:px-12;
+  }
+
+  .surface {
+    @apply border border-white/5 bg-ink-800;
+  }
+
+  .hairline {
+    @apply border-t border-white/[0.06];
+  }
+
+  .btn-primary {
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-ink-900 transition-all duration-200 hover:bg-ink-50 active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-transparent px-6 text-sm font-medium text-white transition-all duration-200 hover:border-white/30 hover:bg-white/5 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-ink-100 transition hover:bg-white/5 hover:text-white;
+  }
+
+  .eyebrow {
+    @apply text-xs font-medium uppercase tracking-[0.18em] text-ink-200;
+  }
+
+  .input-field {
+    @apply h-10 w-full rounded-full border border-white/10 bg-ink-700 px-4 text-sm text-white placeholder:text-ink-300 focus:border-white/30 focus:outline-none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide the overlay cursor from drei when needed */
+canvas {
+  touch-action: none;
+}
+
+/*
+ * ---------- Shell responsive polish ----------
+ * The admin/dealer/account shells use lg:grid-cols-[240px_1fr]. Below `lg`
+ * the sidebar stacks to the top. Mark the sidebar aside with .shell-rail and
+ * its nav with .shell-rail-nav to get a horizontal pill scroll strip on mobile.
+ */
+@layer components {
+  @media (max-width: 1023px) {
+    .shell-rail {
+      position: sticky;
+      top: 64px;
+      z-index: 20;
+      padding: 10px 12px !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .shell-rail::-webkit-scrollbar { display: none; }
+    .shell-rail > .shell-head { flex-shrink: 0; }
+    .shell-rail > hr { display: none; }
+    .shell-rail-nav {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 6px !important;
+      overflow-x: auto;
+      padding: 0 !important;
+      scrollbar-width: none;
+    }
+    .shell-rail-nav::-webkit-scrollbar { display: none; }
+    .shell-rail-nav a {
+      flex-shrink: 0;
+      white-space: nowrap;
+      padding: 7px 12px !important;
+      border-radius: 999px !important;
+      font-size: 12px !important;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .shell-rail-nav a.shell-rail-active {
+      background: #fff !important;
+      color: #07080A !important;
+      border-color: transparent;
+    }
+  }
+
+  /*
+   * Dense tables already scroll horizontally. Add a soft gradient fade on the
+   * right edge so viewers see there's more content when scrolled left.
+   */
+  .table-scroll {
+    position: relative;
+  }
+  .table-scroll::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 32px;
+    background: linear-gradient(to left, rgba(12, 14, 18, 0.9), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+  }
+  @media (max-width: 1023px) {
+    .table-scroll::after { opacity: 1; }
+  }
+}
