@@ -83,9 +83,11 @@ export function Hero() {
             bodyHex="#0F2341"
             bodyFinish="metallic"
             wheelStyle="performance"
+            silhouette="sports"
             headlightsOn={false}
             autoRotate
             interactive
+            showFullscreen
             className="h-full w-full"
           />
           {/* Floor fade */}

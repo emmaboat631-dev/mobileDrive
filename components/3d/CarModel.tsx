@@ -11,9 +11,43 @@ export interface CarMaterialSpec {
   headlightsOn: boolean;
 }
 
+/** Silhouette variants. Mapped from Vehicle['bodyType'] in CarViewer. */
+export type CarSilhouette = 'coupe' | 'sedan' | 'sports' | 'suv' | 'wagon' | 'pickup';
+
 interface CarModelProps extends CarMaterialSpec {
   autoRotate?: boolean;
+  silhouette?: CarSilhouette;
 }
+
+/**
+ * Per-silhouette proportions. All offsets/sizes are in the car's local units.
+ * Keep wheelbase symmetric around x=0 so OrbitControls targets the car centre.
+ */
+interface Proportions {
+  length: number;       // overall body length (x)
+  width: number;        // overall body width (z)
+  bodyHeight: number;   // lower-body thickness
+  cabinLength: number;  // greenhouse length (x)
+  cabinHeight: number;  // greenhouse height (y above body)
+  cabinOffsetX: number; // greenhouse offset along x (positive = toward front)
+  roofY: number;        // roof top height (y)
+  hoodSlope: number;    // forward hood tilt (negative = nose-down)
+  trunkY: number;       // rear deck height (y)
+  wheelbase: number;    // front-rear wheel distance / 2
+  trackHalf: number;    // half-track (z offset of wheels)
+  wheelRadius: number;
+  tireWidth: number;
+  rideHeight: number;   // wheel centre y
+}
+
+const SILHOUETTES: Record<CarSilhouette, Proportions> = {
+  coupe:  { length: 4.0, width: 1.78, bodyHeight: 0.42, cabinLength: 2.0, cabinHeight: 0.52, cabinOffsetX: -0.05, roofY: 1.30, hoodSlope: -0.06, trunkY: 0.82, wheelbase: 1.35, trackHalf: 0.90, wheelRadius: 0.42, tireWidth: 0.22, rideHeight: 0.40 },
+  sports: { length: 4.1, width: 1.80, bodyHeight: 0.36, cabinLength: 1.6, cabinHeight: 0.44, cabinOffsetX: -0.35, roofY: 1.18, hoodSlope: -0.09, trunkY: 0.72, wheelbase: 1.45, trackHalf: 0.92, wheelRadius: 0.44, tireWidth: 0.24, rideHeight: 0.36 },
+  sedan:  { length: 4.4, width: 1.80, bodyHeight: 0.46, cabinLength: 2.3, cabinHeight: 0.58, cabinOffsetX: -0.10, roofY: 1.36, hoodSlope: -0.04, trunkY: 0.88, wheelbase: 1.55, trackHalf: 0.90, wheelRadius: 0.40, tireWidth: 0.22, rideHeight: 0.42 },
+  wagon:  { length: 4.6, width: 1.82, bodyHeight: 0.48, cabinLength: 2.7, cabinHeight: 0.60, cabinOffsetX: -0.30, roofY: 1.40, hoodSlope: -0.04, trunkY: 1.00, wheelbase: 1.60, trackHalf: 0.90, wheelRadius: 0.40, tireWidth: 0.22, rideHeight: 0.44 },
+  suv:    { length: 4.6, width: 1.95, bodyHeight: 0.60, cabinLength: 2.6, cabinHeight: 0.78, cabinOffsetX: -0.15, roofY: 1.70, hoodSlope: -0.02, trunkY: 1.10, wheelbase: 1.55, trackHalf: 0.95, wheelRadius: 0.48, tireWidth: 0.28, rideHeight: 0.52 },
+  pickup: { length: 4.9, width: 1.95, bodyHeight: 0.58, cabinLength: 1.8, cabinHeight: 0.70, cabinOffsetX:  0.30, roofY: 1.60, hoodSlope: -0.02, trunkY: 1.05, wheelbase: 1.70, trackHalf: 0.95, wheelRadius: 0.48, tireWidth: 0.28, rideHeight: 0.50 },
+};
 
 /**
  * Procedural "demo" sports coupe built from primitives.
@@ -27,7 +61,9 @@ export function CarModel({
   wheelStyle,
   headlightsOn,
   autoRotate = false,
+  silhouette = 'coupe',
 }: CarModelProps) {
+  const p = SILHOUETTES[silhouette];
   const group = useRef<THREE.Group>(null);
 
   useFrame((_, delta) => {
@@ -96,107 +132,139 @@ export function CarModel({
     });
   }, [headlightsOn]);
 
+  const bodyY = p.rideHeight + p.bodyHeight / 2 + 0.08;
+  const sillY = p.rideHeight + 0.02;
+  const greenhouseY = bodyY + p.bodyHeight / 2 + p.cabinHeight / 2;
+  const windowShade = p.cabinHeight * 0.6;
+  const noseX = p.length / 2;
+  const tailX = -p.length / 2;
+  const windshieldX = p.cabinOffsetX + p.cabinLength / 2;
+  const rearWindowX = p.cabinOffsetX - p.cabinLength / 2;
+  const hoodLen = Math.max(0.6, noseX - windshieldX - 0.1);
+  const trunkLen = Math.max(0.5, (rearWindowX - tailX) - 0.1);
+  const hoodX = windshieldX + hoodLen / 2 + 0.05;
+  const trunkX = rearWindowX - trunkLen / 2 - 0.05;
+  const headlightY = p.trunkY - 0.07;
+
   return (
     <group ref={group} position={[0, 0, 0]} dispose={null}>
-      {/* ---------- Lower body (sill / rocker) ---------- */}
-      <mesh position={[0, 0.32, 0]} castShadow receiveShadow>
-        <boxGeometry args={[4.2, 0.22, 1.75]} />
+      {/* Lower sill / rocker */}
+      <mesh position={[0, sillY, 0]} castShadow receiveShadow>
+        <boxGeometry args={[p.length - 0.1, 0.22, p.width - 0.03]} />
         <primitive object={trimMaterial} attach="material" />
       </mesh>
 
-      {/* ---------- Main body volume ---------- */}
-      <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
-        <boxGeometry args={[4.0, 0.42, 1.78]} />
+      {/* Main body volume */}
+      <mesh position={[0, bodyY, 0]} castShadow receiveShadow>
+        <boxGeometry args={[p.length - 0.3, p.bodyHeight, p.width]} />
         <primitive object={bodyMaterial} attach="material" />
       </mesh>
 
-      {/* Hood (sloped) */}
-      <mesh position={[1.4, 0.78, 0]} rotation={[0, 0, -0.06]} castShadow receiveShadow>
-        <boxGeometry args={[1.3, 0.18, 1.68]} />
+      {/* Hood (sloped forward) */}
+      <mesh position={[hoodX, p.trunkY - 0.04, 0]} rotation={[0, 0, p.hoodSlope]} castShadow receiveShadow>
+        <boxGeometry args={[hoodLen, 0.18, p.width - 0.1]} />
         <primitive object={bodyMaterial} attach="material" />
       </mesh>
 
-      {/* Trunk (slightly higher than hood) */}
-      <mesh position={[-1.45, 0.82, 0]} rotation={[0, 0, 0.04]} castShadow receiveShadow>
-        <boxGeometry args={[1.2, 0.18, 1.68]} />
+      {/* Trunk / rear deck */}
+      <mesh position={[trunkX, p.trunkY, 0]} rotation={[0, 0, Math.abs(p.hoodSlope) * 0.6]} castShadow receiveShadow>
+        <boxGeometry args={[trunkLen, 0.18, p.width - 0.1]} />
         <primitive object={bodyMaterial} attach="material" />
       </mesh>
 
-      {/* ---------- Greenhouse / cabin ---------- */}
-      <mesh position={[-0.05, 1.0, 0]} castShadow receiveShadow>
-        <boxGeometry args={[2.0, 0.52, 1.55]} />
+      {/* Greenhouse / cabin */}
+      <mesh position={[p.cabinOffsetX, greenhouseY, 0]} castShadow receiveShadow>
+        <boxGeometry args={[p.cabinLength, p.cabinHeight, p.width - 0.23]} />
         <primitive object={bodyMaterial} attach="material" />
       </mesh>
 
-      {/* Windshield (angled) */}
-      <mesh position={[0.95, 1.0, 0]} rotation={[0, 0, -0.62]} castShadow>
-        <boxGeometry args={[0.9, 0.08, 1.5]} />
+      {/* Windshield */}
+      <mesh position={[windshieldX, greenhouseY, 0]} rotation={[0, 0, -0.62]} castShadow>
+        <boxGeometry args={[0.9, 0.08, p.width - 0.28]} />
         <primitive object={glassMaterial} attach="material" />
       </mesh>
 
-      {/* Rear window */}
-      <mesh position={[-1.0, 1.0, 0]} rotation={[0, 0, 0.6]} castShadow>
-        <boxGeometry args={[0.9, 0.08, 1.5]} />
+      {/* Rear window (steeper on wagons/SUVs) */}
+      <mesh
+        position={[rearWindowX, greenhouseY, 0]}
+        rotation={[0, 0, silhouette === 'wagon' || silhouette === 'suv' || silhouette === 'pickup' ? 0.25 : 0.6]}
+        castShadow
+      >
+        <boxGeometry args={[0.9, 0.08, p.width - 0.28]} />
         <primitive object={glassMaterial} attach="material" />
       </mesh>
 
-      {/* Side windows */}
-      <mesh position={[-0.05, 1.15, 0.78]}>
-        <boxGeometry args={[1.7, 0.3, 0.02]} />
+      {/* Side windows (both sides) */}
+      <mesh position={[p.cabinOffsetX, greenhouseY + windowShade / 2 - 0.12, (p.width - 0.21) / 2]}>
+        <boxGeometry args={[p.cabinLength - 0.3, windowShade, 0.02]} />
         <primitive object={glassMaterial} attach="material" />
       </mesh>
-      <mesh position={[-0.05, 1.15, -0.78]}>
-        <boxGeometry args={[1.7, 0.3, 0.02]} />
+      <mesh position={[p.cabinOffsetX, greenhouseY + windowShade / 2 - 0.12, -(p.width - 0.21) / 2]}>
+        <boxGeometry args={[p.cabinLength - 0.3, windowShade, 0.02]} />
         <primitive object={glassMaterial} attach="material" />
       </mesh>
 
       {/* Roof */}
-      <mesh position={[-0.05, 1.3, 0]} castShadow>
-        <boxGeometry args={[1.9, 0.05, 1.52]} />
+      <mesh position={[p.cabinOffsetX, p.roofY, 0]} castShadow>
+        <boxGeometry args={[p.cabinLength - 0.1, 0.05, p.width - 0.26]} />
         <primitive object={bodyMaterial} attach="material" />
       </mesh>
 
+      {/* Pickup bed walls */}
+      {silhouette === 'pickup' && (
+        <>
+          <mesh position={[tailX + 0.55, bodyY + p.bodyHeight / 2 + 0.08, 0]} castShadow receiveShadow>
+            <boxGeometry args={[1.1, 0.3, p.width - 0.06]} />
+            <primitive object={bodyMaterial} attach="material" />
+          </mesh>
+          <mesh position={[tailX + 1.1, bodyY + p.bodyHeight / 2 + 0.18, 0]}>
+            <boxGeometry args={[0.02, 0.1, p.width - 0.1]} />
+            <primitive object={trimMaterial} attach="material" />
+          </mesh>
+        </>
+      )}
+
       {/* Front bumper */}
-      <mesh position={[2.05, 0.42, 0]} castShadow>
-        <boxGeometry args={[0.18, 0.3, 1.7]} />
+      <mesh position={[noseX + 0.03, p.rideHeight + 0.05, 0]} castShadow>
+        <boxGeometry args={[0.18, 0.3, p.width - 0.08]} />
         <primitive object={trimMaterial} attach="material" />
       </mesh>
 
       {/* Rear bumper */}
-      <mesh position={[-2.05, 0.46, 0]} castShadow>
-        <boxGeometry args={[0.18, 0.3, 1.7]} />
+      <mesh position={[tailX - 0.03, p.rideHeight + 0.08, 0]} castShadow>
+        <boxGeometry args={[0.18, 0.3, p.width - 0.08]} />
         <primitive object={trimMaterial} attach="material" />
       </mesh>
 
-      {/* ---------- Headlights ---------- */}
-      <mesh position={[2.08, 0.75, 0.55]}>
+      {/* Headlights */}
+      <mesh position={[noseX + 0.03, headlightY, (p.width - 0.6) / 2]}>
         <boxGeometry args={[0.08, 0.12, 0.42]} />
         <primitive object={headlightMaterial} attach="material" />
       </mesh>
-      <mesh position={[2.08, 0.75, -0.55]}>
+      <mesh position={[noseX + 0.03, headlightY, -(p.width - 0.6) / 2]}>
         <boxGeometry args={[0.08, 0.12, 0.42]} />
         <primitive object={headlightMaterial} attach="material" />
       </mesh>
 
-      {/* ---------- Taillights ---------- */}
-      <mesh position={[-2.08, 0.78, 0.55]}>
+      {/* Taillights */}
+      <mesh position={[tailX - 0.03, headlightY + 0.03, (p.width - 0.6) / 2]}>
         <boxGeometry args={[0.06, 0.14, 0.45]} />
         <primitive object={taillightMaterial} attach="material" />
       </mesh>
-      <mesh position={[-2.08, 0.78, -0.55]}>
+      <mesh position={[tailX - 0.03, headlightY + 0.03, -(p.width - 0.6) / 2]}>
         <boxGeometry args={[0.06, 0.14, 0.45]} />
         <primitive object={taillightMaterial} attach="material" />
       </mesh>
 
-      {/* ---------- Wheels (4) ---------- */}
-      <Wheel position={[1.35, 0.4, 0.9]} style={wheelStyle} />
-      <Wheel position={[1.35, 0.4, -0.9]} style={wheelStyle} />
-      <Wheel position={[-1.35, 0.4, 0.9]} style={wheelStyle} />
-      <Wheel position={[-1.35, 0.4, -0.9]} style={wheelStyle} />
+      {/* Wheels — positions scale with wheelbase/track */}
+      <Wheel position={[ p.wheelbase, p.rideHeight,  p.trackHalf]} style={wheelStyle} radius={p.wheelRadius} width={p.tireWidth} />
+      <Wheel position={[ p.wheelbase, p.rideHeight, -p.trackHalf]} style={wheelStyle} radius={p.wheelRadius} width={p.tireWidth} />
+      <Wheel position={[-p.wheelbase, p.rideHeight,  p.trackHalf]} style={wheelStyle} radius={p.wheelRadius} width={p.tireWidth} />
+      <Wheel position={[-p.wheelbase, p.rideHeight, -p.trackHalf]} style={wheelStyle} radius={p.wheelRadius} width={p.tireWidth} />
 
       {/* Headlight glow projection on ground */}
       {headlightsOn && (
-        <mesh position={[3.4, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh position={[noseX + 1.4, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[2.6, 1.6]} />
           <meshBasicMaterial color="#FFFFFF" transparent opacity={0.08} />
         </mesh>
@@ -208,10 +276,17 @@ export function CarModel({
 function Wheel({
   position,
   style,
+  radius = 0.42,
+  width = 0.22,
 }: {
   position: [number, number, number];
   style: CarMaterialSpec['wheelStyle'];
+  radius?: number;
+  width?: number;
 }) {
+  const rimR = radius * 0.72;
+  const spokeR = radius * 0.4;
+  const hubOffset = width / 2 + 0.001;
   const tireMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
@@ -249,33 +324,31 @@ function Wheel({
 
   const spokeCount = style === 'performance' ? 10 : style === 'luxury' ? 12 : style === 'sport' ? 5 : 6;
 
+  const outward = position[2] > 0 ? 1 : -1;
+
   return (
     <group position={position}>
-      {/* Tire */}
       <mesh rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.42, 0.42, 0.22, 32]} />
+        <cylinderGeometry args={[radius, radius, width, 32]} />
         <primitive object={tireMaterial} attach="material" />
       </mesh>
-      {/* Rim face */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, position[2] > 0 ? 0.001 : -0.001]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.24, 32]} />
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.001 * outward]}>
+        <cylinderGeometry args={[rimR, rimR, width + 0.02, 32]} />
         <primitive object={rimMaterial} attach="material" />
       </mesh>
-      {/* Center hub */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, position[2] > 0 ? 0.12 : -0.12]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.03, 16]} />
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, hubOffset * outward]}>
+        <cylinderGeometry args={[rimR * 0.27, rimR * 0.27, 0.03, 16]} />
         <primitive object={rimMaterial} attach="material" />
       </mesh>
-      {/* Spokes */}
       {Array.from({ length: spokeCount }).map((_, i) => {
         const angle = (i / spokeCount) * Math.PI * 2;
         return (
           <mesh
             key={i}
-            position={[Math.cos(angle) * 0.17, Math.sin(angle) * 0.17, position[2] > 0 ? 0.11 : -0.11]}
+            position={[Math.cos(angle) * spokeR * 0.55, Math.sin(angle) * spokeR * 0.55, (hubOffset - 0.01) * outward]}
             rotation={[0, 0, angle]}
           >
-            <boxGeometry args={[0.22, 0.04, 0.02]} />
+            <boxGeometry args={[spokeR * 1.3, 0.04, 0.02]} />
             <primitive object={rimMaterial} attach="material" />
           </mesh>
         );

@@ -79,6 +79,17 @@ canvas {
   touch-action: none;
 }
 
+/* Fullscreen viewer: expand wrapper to viewport and keep canvas filling it. */
+:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  background: #07080A;
+}
+:fullscreen canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /*
  * ---------- Shell responsive polish ----------
  * The admin/dealer/account shells use lg:grid-cols-[240px_1fr]. Below `lg`

@@ -54,12 +54,14 @@ export function ConfigureClient({ vehicle }: { vehicle: Vehicle }) {
         <div className="relative h-full min-h-[400px]">
           <CarViewer
             modelPath={vehicle.modelPath}
+            bodyType={vehicle.bodyType}
             bodyHex={color.hex}
             bodyFinish={color.finish}
             wheelStyle={wheel.style}
             headlightsOn={headlightsOn}
             cameraPreset={cameraPreset}
             interactive
+            showFullscreen
             className="absolute inset-0"
           />
 

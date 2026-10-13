@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { ChevronRight, Heart, Plus, ArrowRight, Check } from 'lucide-react';
+import { ChevronRight, Heart, Plus, ArrowRight, Check, Lightbulb } from 'lucide-react';
 import type { Vehicle } from '@/types/vehicle';
 import { getHeroColor } from '@/lib/vehicles/data';
 import { formatPrice } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 import { useWishlist } from '@/store/wishlistStore';
+import type { CameraPreset } from '@/store/configuratorStore';
 
 const CarViewer = dynamic(
   () => import('@/components/3d/CarViewer').then((m) => m.CarViewer),
@@ -31,6 +32,18 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
   const hydrated = useWishlist((s) => s.hydrated);
   const defaultColor = getHeroColor(vehicle);
   const defaultWheel = vehicle.availableWheels[0];
+  const [selectedColorId, setSelectedColorId] = useState(defaultColor.id);
+  const [preset, setPreset] = useState<CameraPreset>('orbit');
+  const [headlightsOn, setHeadlightsOn] = useState(false);
+  const activeColor =
+    vehicle.availableColors.find((c) => c.id === selectedColorId) ?? defaultColor;
+
+  const VIEW_PRESETS: { label: string; preset: CameraPreset }[] = [
+    { label: '360°',      preset: 'orbit' },
+    { label: 'Front',     preset: 'front' },
+    { label: 'Side',      preset: 'side' },
+    { label: 'Interior',  preset: 'interior' },
+  ];
 
   const monthly = Math.round((vehicle.price * 0.0196) / 1); // rough simulated monthly
 
@@ -49,29 +62,50 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
         <div className="relative h-[560px] overflow-hidden rounded-3xl border border-white/[0.06] bg-ink-800/40">
           <CarViewer
             modelPath={vehicle.modelPath}
-            bodyHex={defaultColor.hex}
-            bodyFinish={defaultColor.finish}
+            bodyType={vehicle.bodyType}
+            bodyHex={activeColor.hex}
+            bodyFinish={activeColor.finish}
             wheelStyle={defaultWheel.style}
-            headlightsOn={false}
-            autoRotate
+            headlightsOn={headlightsOn}
+            autoRotate={preset === 'orbit'}
+            cameraPreset={preset}
             interactive
+            showFullscreen
             className="absolute inset-0"
           />
-          {/* View tag */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-2 p-5">
-            {['360°', 'Front', 'Side', 'Interior'].map((v, i) => (
-              <div
-                key={v}
-                className={cn(
-                  'pointer-events-auto flex h-16 w-16 items-center justify-center rounded-xl border text-[11px] font-medium',
-                  i === 0
-                    ? 'border-white bg-ink-900/70 text-white backdrop-blur-sm'
-                    : 'border-white/10 bg-ink-900/50 text-ink-100 backdrop-blur-sm hover:border-white/25',
-                )}
-              >
-                {v}
-              </div>
-            ))}
+          {/* Camera presets */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-5">
+            <div className="flex gap-2">
+              {VIEW_PRESETS.map((v) => (
+                <button
+                  key={v.label}
+                  type="button"
+                  onClick={() => setPreset(v.preset)}
+                  className={cn(
+                    'pointer-events-auto flex h-14 min-w-[64px] items-center justify-center rounded-xl border px-2 text-[11px] font-medium transition',
+                    preset === v.preset
+                      ? 'border-white bg-ink-900/80 text-white backdrop-blur-sm'
+                      : 'border-white/10 bg-ink-900/50 text-ink-100 backdrop-blur-sm hover:border-white/25',
+                  )}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setHeadlightsOn((v) => !v)}
+              aria-pressed={headlightsOn}
+              aria-label="Toggle headlights"
+              className={cn(
+                'pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-sm transition',
+                headlightsOn
+                  ? 'border-white bg-white text-ink-900'
+                  : 'border-white/10 bg-ink-900/50 text-ink-100 hover:border-white/25',
+              )}
+            >
+              <Lightbulb className="h-4 w-4" />
+            </button>
           </div>
         </div>
 
@@ -88,6 +122,31 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
             <Tag>{vehicle.bodyType.toUpperCase()}</Tag>
             <Tag>{vehicle.driveType}</Tag>
             <Tag tone="success">IN STOCK</Tag>
+          </div>
+
+          {/* Paint swatches — procedural materials support any hex/finish */}
+          <div>
+            <div className="eyebrow mb-2.5">Paint · {activeColor.name}</div>
+            <div className="flex flex-wrap gap-2">
+              {vehicle.availableColors.map((c) => {
+                const active = c.id === selectedColorId;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setSelectedColorId(c.id)}
+                    aria-label={c.name}
+                    aria-pressed={active}
+                    title={c.name}
+                    className={cn(
+                      'h-8 w-8 rounded-full border-2 transition',
+                      active ? 'border-white' : 'border-white/15 hover:border-white/40',
+                    )}
+                    style={{ backgroundColor: c.hex }}
+                  />
+                );
+              })}
+            </div>
           </div>
 
           {/* Price card */}
