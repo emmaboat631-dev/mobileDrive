@@ -301,11 +301,149 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
         </div>
       )}
 
-      {tab !== 'Overview' && (
-        <div className="mt-10 rounded-2xl border border-white/[0.06] bg-ink-800/40 p-10 text-center text-sm text-ink-200">
-          {tab} content coming in Phase 2.
+      {tab === 'Specifications' && (
+        <div className="mt-10 grid gap-10 lg:grid-cols-2">
+          <SpecGroup
+            title="Powertrain"
+            rows={[
+              ['Horsepower', `${vehicle.horsepower} HP`],
+              ['0–100 km/h', `${vehicle.acceleration.toFixed(1)} s`],
+              ['Top speed', `${vehicle.topSpeed} km/h`],
+              ['Fuel', vehicle.fuelType],
+              vehicle.rangeKm ? ['Electric range', `${vehicle.rangeKm} km`] : null,
+              ['Transmission', vehicle.transmission],
+              ['Drive', vehicle.driveType],
+            ]}
+          />
+          <SpecGroup
+            title="Body & dimensions"
+            rows={[
+              ['Body type', vehicle.bodyType],
+              ['Brand', vehicle.brand],
+              ['Model', vehicle.model],
+              ['Model year', String(vehicle.year)],
+              ['Available paints', String(vehicle.availableColors.length)],
+              ['Available wheels', String(vehicle.availableWheels.length)],
+              ['Available interiors', String(vehicle.availableInteriors.length)],
+            ]}
+          />
         </div>
       )}
+
+      {tab === 'Features' && (
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <section>
+            <h2 className="font-display text-2xl font-semibold text-white">Standard</h2>
+            <ul className="mt-6 divide-y divide-white/[0.06] rounded-2xl border border-white/[0.06] bg-ink-800/60">
+              {vehicle.features.map((f) => (
+                <li key={f} className="flex items-center gap-3 px-5 py-3.5 text-sm text-white">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
+                    <Check className="h-3 w-3 text-white" />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <h2 className="font-display text-2xl font-semibold text-white">Available packages</h2>
+            <ul className="mt-6 space-y-3">
+              {vehicle.availablePackages.map((p) => (
+                <li
+                  key={p.id}
+                  className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-white">{p.name}</div>
+                      <div className="mt-1 text-xs text-ink-200">{p.description}</div>
+                    </div>
+                    <div className="shrink-0 font-display text-sm font-semibold text-white">
+                      +{formatPrice(p.priceDelta, vehicle.currency)}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
+
+      {tab === 'Interior' && (
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.3fr]">
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-white">Trim options</h2>
+            <p className="mt-3 max-w-md text-sm text-ink-200">
+              Four interior trims are available. Select a trim in the configurator to see
+              materials and stitching in context.
+            </p>
+            <Link
+              href={`/configure/${vehicle.id}`}
+              className="mt-6 inline-flex items-center gap-2 text-sm text-ink-100 hover:text-white"
+            >
+              Open the configurator
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+            {vehicle.availableInteriors.map((i) => (
+              <li
+                key={i.id}
+                className="overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60"
+              >
+                <div
+                  className="h-28 w-full"
+                  style={{
+                    background: `linear-gradient(135deg, ${i.seatHex} 55%, ${i.trimHex} 55%)`,
+                  }}
+                  aria-hidden
+                />
+                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="text-sm font-medium text-white">{i.name}</div>
+                  <div className="text-xs text-ink-200">
+                    {i.priceDelta === 0 ? 'Included' : `+${formatPrice(i.priceDelta, vehicle.currency)}`}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {tab === 'Reviews' && (
+        <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border border-white/[0.06] bg-ink-800/40 px-6 py-14 text-center">
+          <div className="font-display text-lg font-semibold text-white">
+            Reviews land with real buyers.
+          </div>
+          <p className="mt-2 max-w-md text-sm text-ink-200">
+            When owner reviews and dealership ratings go live, they will appear here with
+            an aggregate score, verified-buyer badge and filterable sentiment.
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function SpecGroup({ title, rows }: { title: string; rows: ([string, string] | null)[] }) {
+  const clean = rows.filter((r): r is [string, string] => r !== null);
+  return (
+    <section>
+      <h2 className="font-display text-2xl font-semibold text-white">{title}</h2>
+      <div className="mt-6 overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60">
+        {clean.map(([k, v], i) => (
+          <div
+            key={k}
+            className={cn(
+              'flex items-center justify-between px-5 py-3.5 text-sm',
+              i % 2 === 1 && 'bg-white/[0.015]',
+            )}
+          >
+            <span className="text-ink-100">{k}</span>
+            <span className="font-medium text-white">{v}</span>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
