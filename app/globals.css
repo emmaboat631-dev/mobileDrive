@@ -4,6 +4,35 @@
 
 :root {
   color-scheme: dark;
+
+  /* Semantic surfaces — ink palette, renamed by role. */
+  --surface-base: #07080A;
+  --surface-raised: #0C0E12;
+  --surface-overlay: #121418;
+  --surface-sunken: #050507;
+
+  /* Strokes — hairline for grouping, divider for separation, strong for focus. */
+  --stroke-hairline: rgba(255, 255, 255, 0.06);
+  --stroke-divider: rgba(255, 255, 255, 0.10);
+  --stroke-strong: rgba(255, 255, 255, 0.22);
+
+  /* Text levels. */
+  --text-primary: #EEF0F3;
+  --text-secondary: #C7CBD1;
+  --text-tertiary: #8A9099;
+  --text-muted: #5A6069;
+
+  /* Status. */
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-danger: #EF4444;
+  --status-info: #60A5FA;
+
+  /* Radii + elevation. */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
 }
 
 html,

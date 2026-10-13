@@ -10,6 +10,7 @@ import { formatPrice } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 import { useWishlist } from '@/store/wishlistStore';
 import type { CameraPreset } from '@/store/configuratorStore';
+import { Tag } from '@/components/ui';
 
 const CarViewer = dynamic(
   () => import('@/components/3d/CarViewer').then((m) => m.CarViewer),
@@ -309,17 +310,3 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
   );
 }
 
-function Tag({ children, tone }: { children: React.ReactNode; tone?: 'success' }) {
-  return (
-    <span
-      className={cn(
-        'rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider',
-        tone === 'success'
-          ? 'border-emerald-500/40 bg-ink-700/60 text-emerald-400'
-          : 'border-white/15 bg-ink-700/60 text-ink-100',
-      )}
-    >
-      {children}
-    </span>
-  );
-}
