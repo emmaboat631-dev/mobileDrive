@@ -35,7 +35,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☐ Shared data primitives: `DataTable`, `KpiRow`, `StatusBadge`, `FormField`
 
 ### Public surface
-- ☐ (1) Homepage — cinematic hero, featured rail, art-directed sections. Keep 3D hero.
+- ☑ (1) Homepage — editorial Hero (side-by-side type + 3D stage), ShopByCategory tiles, numbered FeaturedRail, Studio section. Real data-driven KPIs.
 - ☐ (1) Global navigation — current nav is OK; audit against the new system.
 - ☑ (2) `/vehicles` marketplace — working search/filters/sort, grid+list, mobile drawer, 20 vehicles, body-type-specific SVG previews.
 - ☐ (3) `/vehicles/[id]` detail — cinematic viewer kept (phase 2B), tabs filled in, specifications and features typography pass.

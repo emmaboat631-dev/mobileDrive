@@ -1,11 +1,16 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, ChevronDown, LayoutGrid, List, X } from 'lucide-react';
 import type { Vehicle, BodyType, FuelType } from '@/types/vehicle';
 import { VehicleCard } from './VehicleCard';
 import { FilterSidebar, type FilterState } from './FilterSidebar';
 import { EmptyState } from '@/components/ui';
+
+const ALL_BODY_TYPES: readonly BodyType[] = [
+  'SUV', 'Sedan', 'Coupe', 'Sports', 'Electric', 'Luxury', 'Pickup',
+] as const;
 
 type SortKey = 'recommended' | 'price-asc' | 'price-desc' | 'power-desc' | 'accel-asc';
 type View = 'grid' | 'list';
@@ -48,13 +53,25 @@ export function MarketplaceClient({ vehicles }: { vehicles: Vehicle[] }) {
     return { min: Math.min(...prices), max: Math.max(...prices) };
   }, [vehicles]);
 
-  const [query, setQuery] = useState('');
+  // Seed initial state from URL (e.g. /vehicles?body=SUV&q=raptor).
+  const search = useSearchParams();
+  const initialBody = useMemo(() => {
+    const raw = search?.get('body');
+    if (!raw) return [] as BodyType[];
+    return raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s): s is BodyType => (ALL_BODY_TYPES as readonly string[]).includes(s));
+  }, [search]);
+  const initialQuery = search?.get('q') ?? '';
+
+  const [query, setQuery] = useState(initialQuery);
   const [view, setView] = useState<View>('grid');
   const [sort, setSort] = useState<SortKey>('recommended');
   const [sortOpen, setSortOpen] = useState(false);
   const [mobileFilters, setMobileFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
-    bodyTypes: [],
+    bodyTypes: initialBody,
     brands: [],
     fuels: [],
     priceMin: priceBounds.min,
@@ -270,5 +287,3 @@ export function MarketplaceClient({ vehicles }: { vehicles: Vehicle[] }) {
   );
 }
 
-// Re-export for the server page below.
-export type { BodyType, FuelType };
