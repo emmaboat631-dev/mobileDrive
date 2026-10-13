@@ -1,47 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { Check } from 'lucide-react';
+import type { Vehicle, BodyType, FuelType } from '@/types/vehicle';
 
-const BODY_TYPES = ['All', 'SUV', 'Sedan', 'Coupe', 'Sports', 'Electric', 'Luxury', 'Pickup'] as const;
-const BRANDS = [
-  { name: 'BMW', count: 12 },
-  { name: 'Porsche', count: 8 },
-  { name: 'Tesla', count: 5 },
-  { name: 'Mercedes-AMG', count: 7 },
-  { name: 'Audi', count: 9 },
-  { name: 'Range Rover', count: 4 },
-];
-const FUELS = [
-  { name: 'Petrol', count: 42 },
-  { name: 'Diesel', count: 18 },
-  { name: 'Electric', count: 24 },
-  { name: 'Hybrid', count: 16 },
-];
+export interface FilterState {
+  bodyTypes: BodyType[];
+  brands: string[];
+  fuels: FuelType[];
+  priceMin: number;
+  priceMax: number;
+}
 
-export function FilterSidebar() {
-  const [bodyType, setBodyType] = useState<string[]>(['All', 'Coupe', 'Electric']);
-  const [brands, setBrands] = useState<string[]>(['BMW', 'Porsche', 'Mercedes-AMG']);
-  const [fuels, setFuels] = useState<string[]>(['Electric']);
-  const [priceRange, setPriceRange] = useState<[number, number]>([60000, 180000]);
+interface Props {
+  vehicles: Vehicle[];
+  filters: FilterState;
+  onChange: (next: FilterState) => void;
+  onReset: () => void;
+  priceBounds: { min: number; max: number };
+  /** Drop the outer card chrome (used inside a mobile drawer). */
+  flat?: boolean;
+}
 
-  const toggleIn = (list: string[], v: string, setter: (next: string[]) => void) => {
-    setter(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
-  };
+const BODY_TYPES: BodyType[] = ['SUV', 'Sedan', 'Coupe', 'Sports', 'Electric', 'Luxury', 'Pickup'];
+const FUELS: FuelType[] = ['Petrol', 'Diesel', 'Electric', 'Hybrid'];
+
+export function FilterSidebar({ vehicles, filters, onChange, onReset, priceBounds, flat = false }: Props) {
+  const brandCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const v of vehicles) map.set(v.brand, (map.get(v.brand) ?? 0) + 1);
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [vehicles]);
+
+  const fuelCounts = useMemo(() => {
+    const map = new Map<FuelType, number>();
+    for (const v of vehicles) map.set(v.fuelType, (map.get(v.fuelType) ?? 0) + 1);
+    return map;
+  }, [vehicles]);
+
+  const bodyCounts = useMemo(() => {
+    const map = new Map<BodyType, number>();
+    for (const v of vehicles) map.set(v.bodyType, (map.get(v.bodyType) ?? 0) + 1);
+    return map;
+  }, [vehicles]);
+
+  const toggleBody = (b: BodyType) =>
+    onChange({
+      ...filters,
+      bodyTypes: filters.bodyTypes.includes(b)
+        ? filters.bodyTypes.filter((x) => x !== b)
+        : [...filters.bodyTypes, b],
+    });
+
+  const toggleBrand = (b: string) =>
+    onChange({
+      ...filters,
+      brands: filters.brands.includes(b)
+        ? filters.brands.filter((x) => x !== b)
+        : [...filters.brands, b],
+    });
+
+  const toggleFuel = (f: FuelType) =>
+    onChange({
+      ...filters,
+      fuels: filters.fuels.includes(f) ? filters.fuels.filter((x) => x !== f) : [...filters.fuels, f],
+    });
+
+  const setPriceMin = (v: number) =>
+    onChange({ ...filters, priceMin: Math.min(v, filters.priceMax) });
+  const setPriceMax = (v: number) =>
+    onChange({ ...filters, priceMax: Math.max(v, filters.priceMin) });
 
   return (
-    <aside className="h-fit rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
+    <aside
+      className={cn(
+        'h-fit',
+        !flat && 'rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5',
+      )}
+    >
       <header className="mb-6 flex items-center justify-between">
         <h2 className="font-display text-lg font-semibold text-white">Filters</h2>
         <button
           type="button"
-          onClick={() => {
-            setBodyType(['All']);
-            setBrands([]);
-            setFuels([]);
-            setPriceRange([60000, 180000]);
-          }}
+          onClick={onReset}
           className="text-xs font-medium text-ink-100 hover:text-white"
         >
           Clear
@@ -51,12 +93,14 @@ export function FilterSidebar() {
       <FilterGroup title="Body Type">
         <div className="flex flex-wrap gap-1.5">
           {BODY_TYPES.map((b) => {
-            const active = bodyType.includes(b);
+            const active = filters.bodyTypes.includes(b);
+            const count = bodyCounts.get(b) ?? 0;
+            if (count === 0) return null;
             return (
               <button
                 key={b}
                 type="button"
-                onClick={() => toggleIn(bodyType, b, setBodyType)}
+                onClick={() => toggleBody(b)}
                 className={cn(
                   'rounded-full px-2.5 py-1.5 text-[11px] font-medium transition',
                   active
@@ -73,31 +117,29 @@ export function FilterSidebar() {
 
       <FilterGroup title="Brand">
         <div className="space-y-2.5">
-          {BRANDS.map((b) => {
-            const checked = brands.includes(b.name);
+          {brandCounts.map(([name, count]) => {
+            const checked = filters.brands.includes(name);
             return (
               <label
-                key={b.name}
+                key={name}
                 className="flex cursor-pointer items-center justify-between text-sm text-ink-100"
               >
                 <span className="flex items-center gap-2.5">
                   <span
                     className={cn(
                       'flex h-4 w-4 items-center justify-center rounded-sm border transition',
-                      checked
-                        ? 'border-transparent bg-white'
-                        : 'border-white/15 bg-ink-700',
+                      checked ? 'border-transparent bg-white' : 'border-white/15 bg-ink-700',
                     )}
                   >
                     {checked && <Check className="h-2.5 w-2.5 text-ink-900" strokeWidth={3} />}
                   </span>
-                  {b.name}
+                  {name}
                 </span>
-                <span className="text-[11px] text-ink-300">{b.count}</span>
+                <span className="text-[11px] text-ink-300">{count}</span>
                 <input
                   type="checkbox"
                   checked={checked}
-                  onChange={() => toggleIn(brands, b.name, setBrands)}
+                  onChange={() => toggleBrand(name)}
                   className="sr-only"
                 />
               </label>
@@ -106,58 +148,65 @@ export function FilterSidebar() {
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Price">
+      <FilterGroup title="Price (USD)">
         <div className="text-sm font-medium text-white">
-          ${priceRange[0].toLocaleString()} – ${priceRange[1].toLocaleString()}
+          ${filters.priceMin.toLocaleString()} – ${filters.priceMax.toLocaleString()}
         </div>
-        <div className="mt-3">
-          <div className="relative h-6">
-            <div className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 rounded bg-white/15" />
-            <div
-              className="absolute top-1/2 h-0.5 -translate-y-1/2 rounded bg-white"
-              style={{
-                left: `${(priceRange[0] / 500000) * 100}%`,
-                right: `${100 - (priceRange[1] / 500000) * 100}%`,
-              }}
+        <div className="mt-3 space-y-3">
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-wider text-ink-300">Minimum</span>
+            <input
+              type="range"
+              min={priceBounds.min}
+              max={priceBounds.max}
+              step={1000}
+              value={filters.priceMin}
+              onChange={(e) => setPriceMin(Number(e.target.value))}
+              className="mt-1 w-full accent-white"
             />
-            {priceRange.map((v, i) => (
-              <div
-                key={i}
-                className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
-                style={{ left: `${(v / 500000) * 100}%` }}
-              />
-            ))}
-          </div>
+          </label>
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-wider text-ink-300">Maximum</span>
+            <input
+              type="range"
+              min={priceBounds.min}
+              max={priceBounds.max}
+              step={1000}
+              value={filters.priceMax}
+              onChange={(e) => setPriceMax(Number(e.target.value))}
+              className="mt-1 w-full accent-white"
+            />
+          </label>
         </div>
       </FilterGroup>
 
       <FilterGroup title="Fuel" last>
         <div className="space-y-2.5">
           {FUELS.map((f) => {
-            const checked = fuels.includes(f.name);
+            const count = fuelCounts.get(f) ?? 0;
+            if (count === 0) return null;
+            const checked = filters.fuels.includes(f);
             return (
               <label
-                key={f.name}
+                key={f}
                 className="flex cursor-pointer items-center justify-between text-sm text-ink-100"
               >
                 <span className="flex items-center gap-2.5">
                   <span
                     className={cn(
                       'flex h-4 w-4 items-center justify-center rounded-sm border transition',
-                      checked
-                        ? 'border-transparent bg-white'
-                        : 'border-white/15 bg-ink-700',
+                      checked ? 'border-transparent bg-white' : 'border-white/15 bg-ink-700',
                     )}
                   >
                     {checked && <Check className="h-2.5 w-2.5 text-ink-900" strokeWidth={3} />}
                   </span>
-                  {f.name}
+                  {f}
                 </span>
-                <span className="text-[11px] text-ink-300">{f.count}</span>
+                <span className="text-[11px] text-ink-300">{count}</span>
                 <input
                   type="checkbox"
                   checked={checked}
-                  onChange={() => toggleIn(fuels, f.name, setFuels)}
+                  onChange={() => toggleFuel(f)}
                   className="sr-only"
                 />
               </label>
@@ -169,20 +218,10 @@ export function FilterSidebar() {
   );
 }
 
-function FilterGroup({
-  title,
-  children,
-  last,
-}: {
-  title: string;
-  children: React.ReactNode;
-  last?: boolean;
-}) {
+function FilterGroup({ title, children, last }: { title: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={cn('space-y-3', !last && 'mb-6 border-b border-white/[0.06] pb-6')}>
-      <h3 className="text-[11px] font-medium uppercase tracking-wider text-ink-200">
-        {title}
-      </h3>
+      <h3 className="text-[11px] font-medium uppercase tracking-wider text-ink-200">{title}</h3>
       {children}
     </div>
   );

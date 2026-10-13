@@ -27,7 +27,8 @@ Status: ☐ not started · ◐ in progress · ☑ done
 ### Shared system
 - ☑ Git baseline + hardening (phase 2A)
 - ☑ 3D viewer silhouette variants + fullscreen + working camera presets (phase 2B)
-- ◐ Design system foundation — tokens + core primitives (phase 2C-DS)
+- ☑ Design system foundation — tokens + core primitives (phase 2C-DS)
+- ☑ Marketplace rebuild — working filters/search/sort, list+grid, mobile drawer, body-type SVG silhouettes, 20 varied vehicles (phase 2C-M)
 - ☐ Adoption pass across existing pages — swap inline card markup for `<Card>` etc.
 - ☐ Loading states (`app/loading.tsx` + per-route) — one visual language
 - ☐ Error states (`app/error.tsx`, `/not-found`, inline empty states)
@@ -36,7 +37,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 ### Public surface
 - ☐ (1) Homepage — cinematic hero, featured rail, art-directed sections. Keep 3D hero.
 - ☐ (1) Global navigation — current nav is OK; audit against the new system.
-- ☐ (2) `/vehicles` marketplace — working search / filters / sort, discovery-first layout, replace fake pagination with real paging over expanded seed.
+- ☑ (2) `/vehicles` marketplace — working search/filters/sort, grid+list, mobile drawer, 20 vehicles, body-type-specific SVG previews.
 - ☐ (3) `/vehicles/[id]` detail — cinematic viewer kept (phase 2B), tabs filled in, specifications and features typography pass.
 - ☐ (4) `/configure/[id]` — align configurator panel to the system; keep bottom sheet.
 - ☐ (5) `/compare` — build it; current page is a placeholder.
