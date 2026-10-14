@@ -29,7 +29,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ◐ Card primitive adoption sweep — Card/SectionHeader/StatTile/EmptyState/Kpi/StatusBadge/Banner/DataTable in use across the overviews, auth, bookings, admin orders / payments / vehicles. ~65 inline cards remain across remaining dealer sub-pages + account sub-pages.
 - ☐ Loading states — `app/loading.tsx` already present and sufficient. Per-route skeletons: not needed yet.
 - ☐ Error states — `app/error.tsx` and `/not-found` already polished. Inline empty states standardised through `EmptyState`.
-- ☑ Shared data primitives — `KpiRow`, `StatusBadge`, `statusTone()`, `Banner`, `DataTable` extracted and in use. `FormField` still pending.
+- ☑ Shared data primitives — `KpiRow`, `StatusBadge`, `statusTone()`, `Banner`, `DataTable`, `Field` + `TextInput` + `SelectInput` + `TextArea` extracted. Form adoption begins next phase.
 
 ### Public surface
 - ☑ (1) Homepage — editorial Hero + ShopByCategory + FeaturedRail + Studio.

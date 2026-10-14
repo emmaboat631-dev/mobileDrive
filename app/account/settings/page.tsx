@@ -105,7 +105,7 @@ export default function AccountSettingsPage() {
             </button>
             <button
               type="button"
-              className="flex items-center gap-3 rounded-xl border border-red-400/30 bg-red-500/5 p-4 text-left text-red-200 hover:bg-red-500/15"
+              className="flex items-center gap-3 rounded-xl border border-rose-400/30 bg-rose-500/5 p-4 text-left text-rose-200 hover:bg-rose-500/15"
             >
               <Trash2 className="h-4 w-4" />
               <div>

@@ -5,6 +5,7 @@ import { Heart, ArrowRight, Trash2, ShoppingBag } from 'lucide-react';
 import { useWishlist } from '@/store/wishlistStore';
 import { getVehicleById, getHeroColor } from '@/lib/vehicles/data';
 import { formatPrice } from '@/lib/utils/format';
+import { EmptyState } from '@/components/ui';
 
 export function WishlistClient() {
   const ids = useWishlist((s) => s.vehicleIds);
@@ -29,21 +30,17 @@ export function WishlistClient() {
     return (
       <div className="space-y-6">
         <Header count={0} hydrated={true} />
-        <div className="rounded-2xl border border-white/[0.06] bg-ink-800/40 p-10 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/10">
-            <Heart className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="mt-5 font-display text-xl font-semibold text-white">
-            No vehicles saved yet
-          </h2>
-          <p className="mt-2 text-sm text-ink-200">
-            Tap the heart on any vehicle to add it to your wishlist.
-          </p>
-          <Link href="/vehicles" className="btn-primary mt-6">
-            Browse vehicles
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+        <EmptyState
+          icon={<Heart className="h-5 w-5" />}
+          title="No vehicles saved yet"
+          description="Tap the heart on any vehicle to add it to your wishlist."
+          action={
+            <Link href="/vehicles" className="btn-primary">
+              Browse vehicles
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          }
+        />
       </div>
     );
   }
