@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import {
   ArrowLeft, CreditCard, Check, RefreshCcw, Download, AlertCircle,
-  Copy, ExternalLink, Shield,
+  Copy, ExternalLink, Shield, Database,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { StatusBadge, statusTone, Banner } from '@/components/ui';
 
 export const metadata = { title: 'Transaction — Admin · mobileDrive' };
 
@@ -41,20 +42,11 @@ const EVENTS = [
   { when: 'Oct 11 (projected)', title: 'Payout settlement',       type: 'future', body: `Expected to post to GCB •••7612 as part of weekly batch.` },
 ];
 
-function statusTone(s: typeof MOCK.status) {
-  switch (s) {
-    case 'Captured': return 'bg-emerald-400/15 text-emerald-400 border-emerald-400/30';
-    case 'Pending':  return 'bg-amber-400/15 text-amber-300 border-amber-400/30';
-    case 'Refunded': return 'bg-sky-400/15 text-sky-300 border-sky-400/30';
-    case 'Failed':   return 'bg-red-500/15 text-red-300 border-red-500/30';
-  }
-}
-
 function riskTone(r: typeof MOCK.risk) {
   switch (r) {
     case 'Low':      return 'text-emerald-400';
     case 'Elevated': return 'text-amber-300';
-    case 'High':     return 'text-red-300';
+    case 'High':     return 'text-rose-300';
   }
 }
 
@@ -80,6 +72,12 @@ export default function TransactionDetailPage({ params }: { params: { id: string
         <ArrowLeft className="h-3 w-3" />
         Payments
       </Link>
+
+      <Banner tone="warning" icon={<Database className="h-4 w-4" />} title="Mock transaction">
+        Payment adapters in <code className="text-white">lib/payments/providers.ts</code> are
+        placeholders. No real card was charged. All timestamps, fees, and provider refs below
+        are illustrative.
+      </Banner>
 
       {/* Header card */}
       <section className="rounded-3xl border border-white/[0.06] bg-ink-800/60 p-6">
@@ -119,7 +117,7 @@ export default function TransactionDetailPage({ params }: { params: { id: string
             {txn.status === 'Captured' && (
               <button
                 type="button"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-400/30 bg-red-500/5 px-6 text-sm font-medium text-red-300 hover:bg-red-500/15"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/5 px-6 text-sm font-medium text-rose-300 hover:bg-rose-500/15"
               >
                 <RefreshCcw className="h-4 w-4" />
                 Refund
@@ -140,10 +138,9 @@ export default function TransactionDetailPage({ params }: { params: { id: string
             </div>
           </div>
           <StripItem label="Status">
-            <span className={'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ' + statusTone(txn.status)}>
-              <Check className="h-3 w-3" />
+            <StatusBadge tone={statusTone(txn.status)} icon={<Check className="h-3 w-3" />}>
               {txn.status}
-            </span>
+            </StatusBadge>
           </StripItem>
           <StripItem label="Risk">
             <span className={'inline-flex items-center gap-1.5 text-sm font-semibold ' + riskTone(txn.risk)}>

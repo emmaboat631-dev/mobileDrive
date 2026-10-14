@@ -50,12 +50,18 @@ export function StatusBadge({ children, tone = 'neutral', icon, dot, className }
   );
 }
 
-/** Maps mobileDrive order/booking status strings to the badge tone. */
+/** Maps mobileDrive order / booking / payment status strings to the badge tone. */
 export function statusTone(status: string): StatusTone {
   const s = status.toLowerCase();
-  if (s === 'delivered' || s === 'confirmed' || s === 'paid' || s === 'active') return 'success';
-  if (s === 'shipping' || s === 'production' || s === 'quality' || s === 'in production') return 'info';
-  if (s === 'pending' || s === 'awaiting' || s === 'review') return 'warning';
-  if (s === 'cancelled' || s === 'failed' || s === 'refunded') return 'danger';
+  if (
+    s === 'delivered' || s === 'confirmed' || s === 'paid' ||
+    s === 'active'    || s === 'captured'  || s === 'completed'
+  ) return 'success';
+  if (
+    s === 'shipping' || s === 'production' || s === 'quality' ||
+    s === 'in production' || s === 'refunded'
+  ) return 'info';
+  if (s === 'pending' || s === 'awaiting' || s === 'review' || s === 'draft') return 'warning';
+  if (s === 'cancelled' || s === 'failed' || s === 'declined') return 'danger';
   return 'neutral';
 }
