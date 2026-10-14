@@ -1,6 +1,6 @@
-import { CalendarClock, Mail, Phone, Clock, AlertTriangle, Database } from 'lucide-react';
+import { CalendarClock, Mail, Phone, Clock, Database } from 'lucide-react';
 import { getUpcomingDealerBookings, groupByDay, type BookingRecord } from '@/lib/bookings/queries';
-import { StatusBadge, statusTone, EmptyState } from '@/components/ui';
+import { StatusBadge, statusTone, EmptyState, Banner } from '@/components/ui';
 
 export const metadata = { title: 'Test drives — Dealer · mobileDrive' };
 
@@ -144,23 +144,3 @@ function DaySection({ dateKey, items }: { dateKey: string; items: BookingRecord[
   );
 }
 
-function Banner({
-  tone,
-  icon,
-  children,
-}: {
-  tone: 'warning' | 'danger';
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const cls =
-    tone === 'danger'
-      ? 'border-rose-400/30 bg-rose-400/10 text-rose-200'
-      : 'border-amber-400/30 bg-amber-400/10 text-amber-200';
-  return (
-    <div className={`flex items-start gap-3 rounded-xl border p-3 text-sm ${cls}`}>
-      <div className="mt-0.5 shrink-0">{icon ?? <AlertTriangle className="h-4 w-4" />}</div>
-      <div className="min-w-0 flex-1 text-[13px] leading-relaxed">{children}</div>
-    </div>
-  );
-}

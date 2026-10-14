@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowUpRight, Download, RefreshCcw, Search, CreditCard, Smartphone, Building2 } from 'lucide-react';
+import { ArrowUpRight, Download, RefreshCcw, Search, CreditCard, Smartphone, Building2, Database } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { KpiRow, StatusBadge, DataTable, Banner, type DataTableColumn } from '@/components/ui';
 
 export const metadata = { title: 'Payments — Admin · mobileDrive' };
 
@@ -34,13 +35,11 @@ const PAYOUTS = [
   { id: 'po_2026_1011', date: 'Oct 11, 2026', bank: 'GCB · ••7612',   amount: 696200, status: 'In transit' },
 ];
 
-function statusColor(s: Txn['status']) {
-  switch (s) {
-    case 'Captured': return 'bg-emerald-400/15 text-emerald-400 border-emerald-400/30';
-    case 'Pending':  return 'bg-amber-400/15 text-amber-300 border-amber-400/30';
-    case 'Refunded': return 'bg-sky-400/15 text-sky-300 border-sky-400/30';
-    case 'Failed':   return 'bg-red-500/15 text-red-300 border-red-500/30';
-  }
+function txnTone(s: Txn['status']) {
+  if (s === 'Captured') return 'success' as const;
+  if (s === 'Pending')  return 'warning' as const;
+  if (s === 'Refunded') return 'info' as const;
+  return 'danger' as const;
 }
 
 function methodIcon(m: Txn['method']) {
@@ -82,15 +81,21 @@ export default function AdminPaymentsPage() {
         </button>
       </header>
 
-      {/* KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi label="Captured"      value={formatPrice(captured)} tone="good" />
-        <Kpi label="Pending"       value={formatPrice(pending)} />
-        <Kpi label="Refunded"      value={formatPrice(refunded)} />
-        <Kpi label="Processing fees"
-             value={formatPrice(fees)}
-             hint={`${(feeRate * 100).toFixed(1)}% weighted average`} />
-      </div>
+      <Banner tone="warning" icon={<Database className="h-4 w-4" />} title="Demo data">
+        Payment adapters in <code className="text-white">lib/payments/providers.ts</code> are
+        mocks. The transactions and payouts below are placeholders — no real money has
+        moved. Wire real Stripe / Paystack / Mobile-money adapters before relying on
+        this data.
+      </Banner>
+
+      <KpiRow
+        items={[
+          { label: 'Captured',        value: formatPrice(captured),  delta: '+12.4%', deltaTone: 'good' },
+          { label: 'Pending',         value: formatPrice(pending) },
+          { label: 'Refunded',        value: formatPrice(refunded) },
+          { label: 'Processing fees', value: formatPrice(fees), hint: `${(feeRate * 100).toFixed(1)}% weighted average` },
+        ]}
+      />
 
       {/* Provider mix */}
       <section className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-6">
@@ -124,9 +129,9 @@ export default function AdminPaymentsPage() {
         </div>
       </section>
 
-      {/* Transactions table */}
-      <section className="overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60">
-        <header className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
+      {/* Transactions */}
+      <section className="space-y-3">
+        <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="eyebrow">Transactions</div>
             <h2 className="mt-1 font-display text-xl font-semibold text-white">All payments</h2>
@@ -141,8 +146,7 @@ export default function AdminPaymentsPage() {
           </div>
         </header>
 
-        {/* Status filter chips */}
-        <div className="flex flex-wrap gap-2 border-y border-white/[0.06] px-6 py-3">
+        <div className="flex flex-wrap gap-2">
           {['All', 'Captured', 'Pending', 'Refunded', 'Failed'].map((t, i) => (
             <button
               key={t}
@@ -159,81 +163,16 @@ export default function AdminPaymentsPage() {
           ))}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
-              <tr>
-                <th className="px-6 py-3 font-medium">Txn id</th>
-                <th className="px-6 py-3 font-medium">Order</th>
-                <th className="px-6 py-3 font-medium">Buyer</th>
-                <th className="px-6 py-3 font-medium">Method</th>
-                <th className="px-6 py-3 font-medium">Amount</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">When</th>
-                <th className="px-6 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {TXNS.map((t) => {
-                const MIcon = methodIcon(t.method);
-                return (
-                  <tr key={t.id} className="hover:bg-white/[0.02]">
-                    <td className="px-6 py-3.5 font-mono text-[11px] text-ink-100">{t.id}</td>
-                    <td className="px-6 py-3.5">
-                      <Link
-                        href={`/admin/orders/${t.orderId}`}
-                        className="font-medium text-white hover:underline"
-                      >
-                        {t.orderId}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-3.5 text-ink-100">{t.buyer}</td>
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-2 text-ink-100">
-                        <MIcon className="h-3.5 w-3.5 text-ink-300" />
-                        {t.method}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5 font-medium text-white tabular-nums">
-                      {formatPrice(t.amount)}
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + statusColor(t.status)}>
-                        {t.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5 text-ink-200">{t.when}</td>
-                    <td className="px-6 py-3.5 text-right">
-                      <div className="inline-flex gap-1">
-                        {t.status === 'Captured' && (
-                          <button
-                            type="button"
-                            aria-label={`Refund ${t.id}`}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-100 hover:bg-white/5"
-                          >
-                            <RefreshCcw className="h-3 w-3" />
-                          </button>
-                        )}
-                        <Link
-                          href={`/admin/payments/${encodeURIComponent(t.id)}`}
-                          aria-label={`Open ${t.id}`}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-100 hover:bg-white/5"
-                        >
-                          <ArrowUpRight className="h-3 w-3" />
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<Txn>
+          rows={TXNS}
+          getKey={(t) => t.id}
+          columns={txnColumns}
+        />
       </section>
 
       {/* Payouts */}
-      <section className="overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60">
-        <header className="flex items-center justify-between px-6 py-5">
+      <section className="space-y-3">
+        <header className="flex items-center justify-between">
           <div>
             <div className="eyebrow">Payouts</div>
             <h2 className="mt-1 font-display text-xl font-semibold text-white">Weekly settlements</h2>
@@ -242,71 +181,76 @@ export default function AdminPaymentsPage() {
             Payout settings
           </button>
         </header>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-y border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
-              <tr>
-                <th className="px-6 py-3 font-medium">Payout id</th>
-                <th className="px-6 py-3 font-medium">Date</th>
-                <th className="px-6 py-3 font-medium">Bank</th>
-                <th className="px-6 py-3 font-medium">Amount</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {PAYOUTS.map((p) => (
-                <tr key={p.id} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-3.5 font-mono text-[11px] text-ink-100">{p.id}</td>
-                  <td className="px-6 py-3.5 text-ink-200">{p.date}</td>
-                  <td className="px-6 py-3.5 text-ink-100">{p.bank}</td>
-                  <td className="px-6 py-3.5 font-medium text-white tabular-nums">
-                    {formatPrice(p.amount)}
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <span
-                      className={
-                        'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' +
-                        (p.status === 'Paid'
-                          ? 'border-emerald-400/30 bg-emerald-400/15 text-emerald-400'
-                          : 'border-sky-400/30 bg-sky-400/15 text-sky-300')
-                      }
-                    >
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-right">
-                    <button
-                      type="button"
-                      className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 px-3 text-[11px] text-ink-100 hover:bg-white/5"
-                    >
-                      Statement
-                      <ArrowUpRight className="h-3 w-3" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<typeof PAYOUTS[number]>
+          rows={PAYOUTS}
+          getKey={(p) => p.id}
+          columns={payoutColumns}
+        />
       </section>
     </div>
   );
 }
 
-function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'good' }) {
-  return (
-    <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
-      <div className="eyebrow">{label}</div>
-      <div
-        className={
-          'mt-2 font-display text-3xl font-semibold -tracking-[0.025em] tabular-nums ' +
-          (tone === 'good' ? 'text-emerald-400' : 'text-white')
-        }
-      >
-        {value}
+const txnColumns: DataTableColumn<Txn>[] = [
+  { key: 'id',       header: 'Txn id',  render: (t) => <span className="font-mono text-[11px] text-ink-100">{t.id}</span> },
+  { key: 'order',    header: 'Order',   render: (t) => <Link href={`/admin/orders/${t.orderId}`} className="font-medium text-white hover:underline">{t.orderId}</Link> },
+  { key: 'buyer',    header: 'Buyer',   render: (t) => t.buyer },
+  {
+    key: 'method',
+    header: 'Method',
+    render: (t) => {
+      const MIcon = methodIcon(t.method);
+      return (
+        <span className="inline-flex items-center gap-2">
+          <MIcon className="h-3.5 w-3.5 text-ink-300" />
+          {t.method}
+        </span>
+      );
+    },
+  },
+  { key: 'amount',   header: 'Amount',  tabular: true, render: (t) => <span className="font-medium text-white">{formatPrice(t.amount)}</span> },
+  { key: 'status',   header: 'Status',  render: (t) => <StatusBadge tone={txnTone(t.status)}>{t.status}</StatusBadge> },
+  { key: 'when',     header: 'When',    render: (t) => <span className="text-ink-200">{t.when}</span> },
+  {
+    key: 'actions',
+    header: '',
+    align: 'right',
+    render: (t) => (
+      <div className="inline-flex gap-1">
+        {t.status === 'Captured' && (
+          <button type="button" aria-label={`Refund ${t.id}`} className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-100 hover:bg-white/5">
+            <RefreshCcw className="h-3 w-3" />
+          </button>
+        )}
+        <Link href={`/admin/payments/${encodeURIComponent(t.id)}`} aria-label={`Open ${t.id}`} className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-100 hover:bg-white/5">
+          <ArrowUpRight className="h-3 w-3" />
+        </Link>
       </div>
-      {hint && <div className="mt-1 text-[11px] text-ink-200">{hint}</div>}
-    </div>
-  );
-}
+    ),
+  },
+];
+
+const payoutColumns: DataTableColumn<typeof PAYOUTS[number]>[] = [
+  { key: 'id',     header: 'Payout id', render: (p) => <span className="font-mono text-[11px] text-ink-100">{p.id}</span> },
+  { key: 'date',   header: 'Date',      render: (p) => <span className="text-ink-200">{p.date}</span> },
+  { key: 'bank',   header: 'Bank',      render: (p) => p.bank },
+  { key: 'amount', header: 'Amount',    tabular: true, render: (p) => <span className="font-medium text-white">{formatPrice(p.amount)}</span> },
+  {
+    key: 'status',
+    header: 'Status',
+    render: (p) => (
+      <StatusBadge tone={p.status === 'Paid' ? 'success' : 'info'}>{p.status}</StatusBadge>
+    ),
+  },
+  {
+    key: 'actions',
+    header: '',
+    align: 'right',
+    render: () => (
+      <button type="button" className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 px-3 text-[11px] text-ink-100 hover:bg-white/5">
+        Statement
+        <ArrowUpRight className="h-3 w-3" />
+      </button>
+    ),
+  },
+];

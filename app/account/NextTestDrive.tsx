@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { Calendar, AlertTriangle, Database } from 'lucide-react';
 import { cancelBooking } from '@/lib/bookings/actions';
-import { StatusBadge, statusTone, type StatusTone } from '@/components/ui';
+import { StatusBadge, statusTone, type StatusTone, Banner } from '@/components/ui';
 
 export type Mode =
   | 'persisted'
@@ -37,22 +37,22 @@ export function NextTestDrive(props: NextTestDriveProps) {
 function Body({ mode, booking }: NextTestDriveProps) {
   if (mode === 'unconfigured') {
     return (
-      <Notice tone="warning" icon={<Database className="h-3.5 w-3.5" />}>
+      <Banner tone="warning" icon={<Database className="h-4 w-4" />}>
         Supabase is not configured in this environment, so your bookings can&apos;t be read.
-      </Notice>
+      </Banner>
     );
   }
   if (mode === 'unauthenticated') {
     return (
-      <Notice tone="warning">
+      <Banner tone="warning">
         <Link href="/sign-in?next=/account" className="underline">Sign in</Link>
         {' '}to see your upcoming test drives.
-      </Notice>
+      </Banner>
     );
   }
   if (mode === 'error') {
     return (
-      <Notice tone="danger">Couldn&apos;t load your bookings right now. Please try again.</Notice>
+      <Banner tone="danger">Couldn&apos;t load your bookings right now. Please try again.</Banner>
     );
   }
   if (mode === 'empty' || !booking) {
@@ -145,23 +145,3 @@ function BookingTile({ booking }: { booking: NonNullable<NextTestDriveProps['boo
   );
 }
 
-function Notice({
-  tone,
-  icon,
-  children,
-}: {
-  tone: 'warning' | 'danger';
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const cls =
-    tone === 'danger'
-      ? 'border-rose-400/30 bg-rose-400/10 text-rose-200'
-      : 'border-amber-400/30 bg-amber-400/10 text-amber-200';
-  return (
-    <div className={`flex items-start gap-2.5 rounded-xl border p-3 text-[12px] leading-relaxed ${cls}`}>
-      <div className="mt-0.5 shrink-0">{icon ?? <AlertTriangle className="h-3.5 w-3.5" />}</div>
-      <div>{children}</div>
-    </div>
-  );
-}

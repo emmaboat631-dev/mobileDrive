@@ -26,10 +26,10 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☑ Vehicle detail tabs — Specifications / Features / Interior (phase 2D-D)
 - ☑ Compare page — working picker, URL state, best-row highlight (phase 2D-C)
 - ☑ Auth unification — one AuthLayout for sign-in / sign-up / forgot-password (phase 2F-Auth)
-- ◐ Card primitive adoption sweep — Card/SectionHeader/StatTile/EmptyState/Kpi/StatusBadge adopted in admin / dealer / account overviews and confirmation. ~80 inline cards remain across sub-pages.
+- ◐ Card primitive adoption sweep — Card/SectionHeader/StatTile/EmptyState/Kpi/StatusBadge/Banner/DataTable in use across the overviews, auth, bookings, admin orders / payments / vehicles. ~65 inline cards remain across remaining dealer sub-pages + account sub-pages.
 - ☐ Loading states — `app/loading.tsx` already present and sufficient. Per-route skeletons: not needed yet.
 - ☐ Error states — `app/error.tsx` and `/not-found` already polished. Inline empty states standardised through `EmptyState`.
-- ☑ Shared data primitives — `KpiRow`, `StatusBadge`, `statusTone()` extracted and in use. `DataTable` + `FormField` still pending.
+- ☑ Shared data primitives — `KpiRow`, `StatusBadge`, `statusTone()`, `Banner`, `DataTable` extracted and in use. `FormField` still pending.
 
 ### Public surface
 - ☑ (1) Homepage — editorial Hero + ShopByCategory + FeaturedRail + Studio.
@@ -53,7 +53,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ◐ (8) `/dealer` overview adopted KpiRow + StatusBadge; sub-pages (inventory, bookings, sales, customers, marketing, settings) still carry inline markup.
 
 ### Admin
-- ◐ (9) `/admin` overview adopted KpiRow + StatusBadge; sub-pages (vehicles, orders, customers, payments, analytics, settings) still carry inline markup.
+- ◐ (9) `/admin` overview + `/orders` + `/payments` + `/vehicles` adopt KpiRow/StatusBadge/Banner/DataTable; `/customers`, `/analytics`, `/settings`, `/vehicles/[id]`, `/orders/[id]`, `/payments/[id]`, `/customers/[email]`, `/vehicles/new` still inline.
 
 ### Commerce
 - ◐ (10) `/cart`, `/checkout` functional. `/checkout/confirmation` rewritten to never claim payment succeeded — explicit "Awaiting payment", prominent demo-mode disclaimer when backend not configured.
