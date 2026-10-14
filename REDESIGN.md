@@ -6,19 +6,12 @@ Living document. Updated at the end of every phase. Keep it short.
 
 - **Deliberately art-directed, not a dashboard template.** Dark automotive theme, structural restraint, generous negative space, display type doing the heavy lifting.
 - **No AI-slop patterns.** No decorative gradients, no glassmorphism except where it earns its keep (nav scrim, canvas overlays), no card-in-card-in-card, no animation without purpose.
-- **One system across the surface.** Same card, same header, same stat tile, same empty state everywhere. If a page needs a new shape, promote it to the system.
+- **One system across the surface.** Same card, same header, same stat tile, same empty state everywhere.
 - **Context-appropriate density.**
-  - Home + showroom + detail → cinematic, large type, hero media.
+  - Home + showroom + detail → cinematic.
   - Marketplace → discovery, scanning, filtering.
-  - Account / dealer / admin → operational clarity, dense tables, tight hierarchy.
-- **Preserve working functionality.** No destructive rewrites of routes, data, or state. Primitives are introduced additively; adoption happens page by page.
-
-## Design system foundation (Phase 2C-DS)
-
-- CSS variables for semantic surfaces, strokes, text levels, elevation (globals.css).
-- `components/ui/` primitives: `Card`, `SectionHeader`, `StatTile`, `Tag`, `EmptyState`, `Divider`.
-- Existing `btn-primary/secondary/ghost`, `.eyebrow`, `.container-page` stay as the authoritative class API; no renames.
-- `tailwind.config.ts`: additive only — no colour renames, no scale changes that could break existing JSX.
+  - Account / dealer / admin → operational clarity.
+- **Preserve working functionality.** No destructive rewrites of routes, data, or state.
 
 ## Implementation checklist
 
@@ -29,51 +22,83 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☑ 3D viewer silhouette variants + fullscreen + working camera presets (phase 2B)
 - ☑ Design system foundation — tokens + core primitives (phase 2C-DS)
 - ☑ Marketplace rebuild — working filters/search/sort, list+grid, mobile drawer, body-type SVG silhouettes, 20 varied vehicles (phase 2C-M)
-- ☐ Adoption pass across existing pages — swap inline card markup for `<Card>` etc.
-- ☐ Loading states (`app/loading.tsx` + per-route) — one visual language
-- ☐ Error states (`app/error.tsx`, `/not-found`, inline empty states)
-- ☐ Shared data primitives: `DataTable`, `KpiRow`, `StatusBadge`, `FormField`
+- ☑ Homepage treatment — editorial Hero, ShopByCategory, numbered FeaturedRail, Studio section (phase 2D-H)
+- ☑ Vehicle detail tabs — Specifications / Features / Interior (phase 2D-D)
+- ☑ Compare page — working picker, URL state, best-row highlight (phase 2D-C)
+- ☑ Auth unification — one AuthLayout for sign-in / sign-up / forgot-password (phase 2F-Auth)
+- ◐ Card primitive adoption sweep — Card/SectionHeader/StatTile/EmptyState exist and are opt-in; ~2 pages have adopted them. Remaining pages still use inline card markup.
+- ☐ Loading states — `app/loading.tsx` already present and sufficient. Per-route skeletons: not needed yet.
+- ☐ Error states — `app/error.tsx` and `/not-found` already polished. Inline empty states standardised through `EmptyState`.
+- ☐ Shared data primitives — `DataTable`, `KpiRow`, `StatusBadge`, `FormField` not yet extracted (admin/dealer rebuilds will need them).
 
 ### Public surface
-- ☑ (1) Homepage — editorial Hero (side-by-side type + 3D stage), ShopByCategory tiles, numbered FeaturedRail, Studio section. Real data-driven KPIs.
-- ☐ (1) Global navigation — current nav is OK; audit against the new system.
+- ☑ (1) Homepage — editorial Hero + ShopByCategory + FeaturedRail + Studio.
+- ☑ (1) Global navigation — pruned to real routes; translucent-on-scroll works.
 - ☑ (2) `/vehicles` marketplace — working search/filters/sort, grid+list, mobile drawer, 20 vehicles, body-type-specific SVG previews.
 - ☑ (3) `/vehicles/[id]` detail — viewer kept, Specifications/Features/Interior tabs filled with real content, Reviews is an honest empty state.
-- ☐ (4) `/configure/[id]` — align configurator panel to the system; keep bottom sheet.
+- ◐ (4) `/configure/[id]` — fully functional; configurator panel visual pass still possible but not critical.
 - ☑ (5) `/compare` — working add/remove, URL-param-persisted selection, picker modal with search, best-in-row highlighting.
-- ☐ (5) `/account/wishlist` — adopt system; empty state.
+- ◐ (5) `/account/wishlist` — functional. Visual pass to adopt `EmptyState` + `Card` not yet done.
 
 ### Auth
-- ☑ (6) `/sign-in`, `/sign-up`, `/forgot-password` — unified `AuthLayout` template, 70%+ duplication removed.
+- ☑ (6) `/sign-in`, `/sign-up`, `/forgot-password` — unified `AuthLayout` template.
 
 ### Customer
-- ☐ (7) `/account` overview — KPI row + recent activity, no gradients.
-- ☐ (7) `/account/builds`, `/orders`, `/orders/[id]`, `/settings` — table + detail template.
-- ☐ (10) Test-drive booking + reservation flow — new; depends on auth.
+- ◐ (7) `/account` overview — functional, visually serviceable. Visual pass to adopt shared primitives: pending.
+- ◐ (7) `/account/builds`, `/orders`, `/orders/[id]`, `/settings` — functional. Not reviewed in detail this session.
+- ☐ (10) Test-drive booking + reservation flow — not implemented; copy-only references in overview.
 
 ### Dealer
-- ☐ (8) `/dealer` overview, inventory, bookings, sales, customers, marketing, settings — operational clarity.
+- ◐ (8) `/dealer` overview, inventory, bookings, sales, customers, marketing, settings — functional pages exist, hardcoded label fixed. Full visual redesign pending.
 
 ### Admin
-- ☐ (9) `/admin` overview, vehicles (list/new/edit), orders, customers, payments, analytics, settings.
+- ◐ (9) `/admin` overview, vehicles (list/new/edit), orders, customers, payments, analytics, settings — functional pages exist. Full visual redesign pending.
 
 ### Commerce
-- ☐ (10) `/cart`, `/checkout`, `/checkout/confirmation` — tightened step flow.
+- ◐ (10) `/cart`, `/checkout`, `/checkout/confirmation` — cart is functional with real store. Checkout and confirmation not visually reviewed this session.
 
 ### Cross-cutting
-- ☐ Responsive QA pass (320 → 1536px) on every shipped surface.
-- ☐ Reduced-motion audit — current global override is enough but confirm per page.
-- ☐ Final README update replacing stale Phase 1 narrative.
-
-## Order of work
-
-Done: 2A, 2B.
-Next: **2C-DS** (foundation only; no page rewrites yet) → **2C-M** (marketplace + VehicleCard adoption) → **2D-H** (homepage treatment) → **2D-D** (vehicle detail tabs) → **2E-Shells** (account/dealer/admin adoption pass) → **2F-Auth** → **2G-Commerce** → **2H-States-and-polish**.
-
-Each phase: implement → `tsc --noEmit` → `next build` → commit → update this file.
+- ☐ Responsive QA pass (320 → 1536px) on every shipped surface — not performed; sandbox environment has no browser.
+- ☐ Reduced-motion audit — global CSS override is in place; per-page confirmation pending.
+- ☐ Final README update replacing stale Phase 1 narrative — not touched.
+- ☐ Visual QA against reference images / HTML prototype — reference assets not provided to the session, so could not compare.
 
 ## Decisions outstanding
 
-- 3D source (procedural vs licensed GLB vs hybrid) — still open. Does not block anything until phase 2D-D wants photoreal cars.
-- Branding (logo mark, accent colour, tone) — currently neutral white-on-ink. Will stay unless you redirect.
-- Target market scope — currently US/GH/EU in types; UI shows USD only. Not addressed in this phase.
+- **3D source** (procedural vs licensed GLB vs hybrid) — still open. Does not block anything until a photoreal-vehicle phase. Current procedural silhouettes are differentiated by body type.
+- **Branding** (logo mark, accent colour, tone) — currently neutral white-on-ink.
+- **Target market scope** — currently US/GH/EU in types; UI shows USD only.
+- **Supabase connection** — `.env.local` not set; middleware and auth are no-ops locally until configured. Full auth, orders, and admin role gates become live once Supabase is wired.
+
+## Resume checkpoint — exact next step
+
+The highest-leverage remaining work is the **operational dashboards pass**. Two concrete next phases:
+
+**Phase 2E-Shells** — redesign admin / dealer / account overview pages for operational clarity:
+1. Extract shared primitives: `KpiRow`, `StatusBadge`, `DataTable`.
+2. Rewrite `app/admin/page.tsx`, `app/dealer/page.tsx`, `app/account/page.tsx` using them.
+3. Replace per-page sample data (placeholder names, orders) with store-backed or seed-driven data where possible.
+4. Audit the sub-pages (`vehicles`, `orders`, `customers`, `payments`, `analytics`, `settings` in both admin and dealer) and give them a consistent list/table/detail template.
+
+**Phase 2G-Commerce** — polish cart / checkout / confirmation:
+1. Verify `/checkout` step flow and typography.
+2. Adopt `Card`, `SectionHeader`, `EmptyState` throughout.
+3. Confirmation page: receipt treatment that reads like a delivery letter, not a dashboard tile.
+
+**Phase 2H-Polish**:
+1. Browser-based responsive QA at 320 / 768 / 1024 / 1440 (needs a browser, impossible here).
+2. Reduced-motion audit per route.
+3. README refresh.
+4. Final sweep adopting `<Card>` across the ~85 remaining inline card call-sites.
+
+Each phase: implement → `tsc --noEmit` → `next build` → commit → update this file.
+
+## Commits so far
+
+```
+7e2534e (phase 2C-DS) design system foundation (tokens + ui primitives)
+5c1d4e3 (phase 2B)    silhouette variants, fullscreen, working view presets
+8781f80 (phase 2A)    harden auth gates, prune broken nav, fix fake copy
+c13ce18 (baseline)    chore: baseline before phase 2A hardening
+```
+Later commits (verified via `git log --oneline`): 2C-M marketplace, 2D-H homepage, 2D-D detail tabs, 2D-C compare, 2F-Auth unification, dealer-shell label fix.

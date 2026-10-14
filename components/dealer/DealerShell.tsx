@@ -30,7 +30,7 @@ export function DealerShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="min-w-0">
               <div className="text-xs text-ink-200">mobileDrive</div>
-              <div className="text-sm font-semibold text-white">Accra Dealer</div>
+              <div className="text-sm font-semibold text-white">Dealer</div>
             </div>
           </div>
           <div className="h-px bg-white/[0.06]" />
