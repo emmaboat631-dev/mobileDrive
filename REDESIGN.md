@@ -47,6 +47,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☑ (7) `/account` overview — StatusBadge adopted; functional, consistent with the system.
 - ◐ (7) `/account/builds`, `/orders`, `/orders/[id]`, `/settings` — functional. Not reviewed in detail this session.
 - ☑ (10) Test-drive booking — `/test-drive/[id]` page + form + server action + `test_drive_bookings` migration + RLS. Validates business hours (09:00–18:00), 30-min lead, 60-day horizon, phone format. Duplicate check on (user, vehicle, time). Falls back to local-only when Supabase isn't configured; UI is honest about this.
+- ☑ (10) Test-drive data integration — `/account` "Next test drive" reads real upcoming booking with cancel action; `/dealer/bookings` reads real upcoming bookings for the next 14 days grouped by day. Both surfaces render honest banners when Supabase is unconfigured, user is unauthenticated, or role is insufficient.
 
 ### Dealer
 - ◐ (8) `/dealer` overview adopted KpiRow + StatusBadge; sub-pages (inventory, bookings, sales, customers, marketing, settings) still carry inline markup.

@@ -3,11 +3,34 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { AccountKpis } from './AccountKpis';
 import { StatusBadge } from '@/components/ui';
+import { getUserBookings } from '@/lib/bookings/queries';
+import { NextTestDrive, type NextTestDriveProps } from './NextTestDrive';
 
 const TRACKER = ['Order placed', 'In production', 'Quality check', 'Shipping', 'Delivered'];
 
-export default function AccountOverviewPage() {
+async function resolveNextTestDrive(): Promise<NextTestDriveProps> {
+  const r = await getUserBookings({ onlyUpcoming: true });
+  if (r.mode === 'unconfigured')     return { mode: 'unconfigured' };
+  if (r.mode === 'unauthenticated')  return { mode: 'unauthenticated' };
+  if (!r.ok)                         return { mode: 'error' };
+  const next = r.bookings.find((b) => b.status !== 'cancelled');
+  if (!next || !next.vehicle)        return { mode: 'empty' };
+  return {
+    mode: 'persisted',
+    booking: {
+      id: next.id,
+      scheduledAt: next.scheduledAt,
+      status: next.status,
+      vehicleId: next.vehicleId,
+      vehicleBrand: next.vehicle.brand,
+      vehicleModel: next.vehicle.model,
+    },
+  };
+}
+
+export default async function AccountOverviewPage() {
   const currentStep = 1;
+  const nextTestDrive = await resolveNextTestDrive();
 
   return (
     <div className="space-y-6">
@@ -119,36 +142,7 @@ export default function AccountOverviewPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/[0.06] bg-ink-800/60 p-6">
-          <h3 className="mb-4 font-display text-base font-semibold text-white">
-            Next test drive
-          </h3>
-          <div className="rounded-xl border border-white/[0.08] bg-ink-700/40 p-4">
-            <div className="flex items-center gap-4">
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-white text-ink-900">
-                <div className="text-center">
-                  <div className="font-display text-2xl font-semibold leading-none">12</div>
-                  <div className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-ink-700">
-                    Oct
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-white">Porsche 911 Carrera</div>
-                <div className="text-[11px] text-ink-200">14:00 — 15:30</div>
-                <div className="text-[11px] text-ink-200">mobileDrive Accra</div>
-              </div>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button type="button" className="btn-secondary h-10 flex-1 px-3 text-xs">
-                Reschedule
-              </button>
-              <button type="button" className="btn-primary h-10 flex-1 px-3 text-xs">
-                View details
-              </button>
-            </div>
-          </div>
-        </div>
+        <NextTestDrive {...nextTestDrive} />
       </div>
     </div>
   );

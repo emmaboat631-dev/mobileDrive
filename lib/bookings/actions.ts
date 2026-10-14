@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { getServerSupabase } from '@/lib/supabase/server';
 import { getVehicleById } from '@/lib/vehicles/data';
 
@@ -124,6 +125,9 @@ export async function bookTestDrive(input: BookingInput): Promise<BookingResult>
     return { ok: false, error: 'Something went wrong saving your request. Please try again.' };
   }
 
+  revalidatePath('/account');
+  revalidatePath('/dealer/bookings');
+
   return {
     ok: true,
     mode: 'persisted',
@@ -131,4 +135,42 @@ export async function bookTestDrive(input: BookingInput): Promise<BookingResult>
     scheduledAt: scheduledAtIso,
     vehicleId: input.vehicleId,
   };
+}
+
+export type CancelBookingResult =
+  | { ok: true; mode: 'persisted' | 'local' }
+  | { ok: false; error: string };
+
+/**
+ * Cancel a booking by id. RLS lets the owner update their own row, and dealers/
+ * admins can update any row — this action does the UPDATE and relies on RLS to
+ * enforce permissions, so an unauthorised caller gets an "error" result.
+ */
+export async function cancelBooking(bookingId: string): Promise<CancelBookingResult> {
+  if (!bookingId) return { ok: false, error: 'Missing booking id.' };
+
+  const supabase = getServerSupabase();
+  if (!supabase) {
+    // Backend not configured — no record exists to cancel.
+    return { ok: true, mode: 'local' };
+  }
+
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !userData.user) {
+    return { ok: false, error: 'Please sign in to cancel a booking.' };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+  const { error } = await db
+    .from('test_drive_bookings')
+    .update({ status: 'cancelled' })
+    .eq('id', bookingId);
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath('/account');
+  revalidatePath('/dealer/bookings');
+
+  return { ok: true, mode: 'persisted' };
 }
