@@ -44,7 +44,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☐ (5) `/account/wishlist` — adopt system; empty state.
 
 ### Auth
-- ☐ (6) `/sign-in`, `/sign-up`, `/forgot-password` — single auth-page template.
+- ☑ (6) `/sign-in`, `/sign-up`, `/forgot-password` — unified `AuthLayout` template, 70%+ duplication removed.
 
 ### Customer
 - ☐ (7) `/account` overview — KPI row + recent activity, no gradients.
