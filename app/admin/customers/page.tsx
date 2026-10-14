@@ -1,10 +1,22 @@
 import Link from 'next/link';
 import { ArrowUpRight, Search, UserPlus, Mail } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { DataTable, StatusBadge, statusTone, type DataTableColumn, type StatusTone } from '@/components/ui';
 
 export const metadata = { title: 'Customers — Admin · mobileDrive' };
 
-const CUSTOMERS = [
+interface Customer {
+  name: string;
+  email: string;
+  region: string;
+  orders: number;
+  spent: number;
+  since: string;
+  status: 'Active' | 'Pending' | 'Lead';
+  tier: 'Premium' | 'Standard' | 'Fleet' | 'Prospect';
+}
+
+const CUSTOMERS: Customer[] = [
   { name: 'Asiamah Joshua',   email: 'asiamah@mobiledrive.app', region: 'GH', orders: 1, spent: 123700, since: '2025-11-02', status: 'Active', tier: 'Premium' },
   { name: 'Nia Mensah',       email: 'nia@acme.co',             region: 'GH', orders: 3, spent: 287400, since: '2024-07-14', status: 'Active', tier: 'Premium' },
   { name: 'Kojo Boateng',     email: 'kojo.b@workmail.com',     region: 'GH', orders: 2, spent: 203100, since: '2025-03-20', status: 'Active', tier: 'Standard' },
@@ -15,23 +27,12 @@ const CUSTOMERS = [
   { name: 'Rafael Mendes',    email: 'rafael.m@imports.pt',     region: 'EU', orders: 1, spent: 142800, since: '2025-12-02', status: 'Active', tier: 'Standard' },
 ];
 
-function tierColor(t: string) {
-  switch (t) {
-    case 'Premium':  return 'bg-amber-400/15 text-amber-300 border-amber-400/30';
-    case 'Fleet':    return 'bg-sky-400/15 text-sky-300 border-sky-400/30';
-    case 'Standard': return 'bg-white/10 text-ink-100 border-white/15';
-    case 'Prospect': return 'bg-ink-700 text-ink-300 border-white/10';
-    default:         return 'bg-white/10 text-ink-100 border-white/15';
-  }
-}
-function statusColor(s: string) {
-  switch (s) {
-    case 'Active':  return 'text-emerald-400';
-    case 'Pending': return 'text-amber-400';
-    case 'Lead':    return 'text-ink-200';
-    default:        return 'text-ink-200';
-  }
-}
+const TIER_TONE: Record<Customer['tier'], StatusTone> = {
+  Premium:  'warning',
+  Fleet:    'info',
+  Standard: 'neutral',
+  Prospect: 'muted',
+};
 
 export default function AdminCustomersPage() {
   const total = CUSTOMERS.reduce((s, c) => s + c.spent, 0);
@@ -78,81 +79,63 @@ export default function AdminCustomersPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <section className="overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
-              <tr>
-                <th className="px-6 py-3 font-medium">Customer</th>
-                <th className="px-6 py-3 font-medium">Tier</th>
-                <th className="px-6 py-3 font-medium">Orders</th>
-                <th className="px-6 py-3 font-medium">Spent</th>
-                <th className="px-6 py-3 font-medium">Region</th>
-                <th className="px-6 py-3 font-medium">Since</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {CUSTOMERS.map((c) => (
-                <tr key={c.email} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-white"
-                        style={{ background: 'linear-gradient(135deg, #A078FF, #FF78A0)' }}
-                      >
-                        {c.name.split(' ').map((p) => p[0]).join('').slice(0, 2)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-white">{c.name}</div>
-                        <div className="truncate text-[11px] text-ink-200">{c.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + tierColor(c.tier)}>
-                      {c.tier}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-ink-100 tabular-nums">{c.orders}</td>
-                  <td className="px-6 py-3.5 font-medium text-white tabular-nums">
-                    {c.spent > 0 ? formatPrice(c.spent) : '—'}
-                  </td>
-                  <td className="px-6 py-3.5 text-ink-100">{c.region}</td>
-                  <td className="px-6 py-3.5 text-ink-200 tabular-nums">{c.since}</td>
-                  <td className="px-6 py-3.5">
-                    <span className={'inline-flex items-center gap-1.5 text-xs font-medium ' + statusColor(c.status)}>
-                      <span className={'h-1.5 w-1.5 rounded-full ' + (c.status === 'Active' ? 'bg-emerald-400' : c.status === 'Pending' ? 'bg-amber-400' : 'bg-ink-300')} />
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-right">
-                    <div className="inline-flex gap-1">
-                      <button
-                        type="button"
-                        aria-label={`Email ${c.name}`}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-100 hover:bg-white/5"
-                      >
-                        <Mail className="h-3 w-3" />
-                      </button>
-                      <Link
-                        href={`/admin/customers/${encodeURIComponent(c.email)}`}
-                        aria-label={`Open ${c.name}`}
-                        className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 px-3 text-[11px] text-ink-100 hover:bg-white/5"
-                      >
-                        Open
-                        <ArrowUpRight className="h-3 w-3" />
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable<Customer>
+        rows={CUSTOMERS}
+        getKey={(c) => c.email}
+        columns={customerColumns}
+      />
     </div>
   );
 }
+
+const customerColumns: DataTableColumn<Customer>[] = [
+  {
+    key: 'customer',
+    header: 'Customer',
+    render: (c) => (
+      <div className="flex items-center gap-3">
+        <div
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-white"
+          style={{ background: 'linear-gradient(135deg, #A078FF, #FF78A0)' }}
+          aria-hidden
+        >
+          {c.name.split(' ').map((p) => p[0]).join('').slice(0, 2)}
+        </div>
+        <div className="min-w-0">
+          <div className="truncate font-medium text-white">{c.name}</div>
+          <div className="truncate text-[11px] text-ink-200">{c.email}</div>
+        </div>
+      </div>
+    ),
+  },
+  { key: 'tier',    header: 'Tier',    render: (c) => <StatusBadge tone={TIER_TONE[c.tier]}>{c.tier}</StatusBadge> },
+  { key: 'orders',  header: 'Orders',  tabular: true, render: (c) => <span className="text-ink-100">{c.orders}</span> },
+  { key: 'spent',   header: 'Spent',   tabular: true, render: (c) => <span className="font-medium text-white">{c.spent > 0 ? formatPrice(c.spent) : '—'}</span> },
+  { key: 'region',  header: 'Region',  render: (c) => c.region },
+  { key: 'since',   header: 'Since',   tabular: true, render: (c) => <span className="text-ink-200">{c.since}</span> },
+  { key: 'status',  header: 'Status',  render: (c) => <StatusBadge tone={statusTone(c.status)} dot>{c.status}</StatusBadge> },
+  {
+    key: 'actions',
+    header: '',
+    align: 'right',
+    render: (c) => (
+      <div className="inline-flex gap-1">
+        <a
+          href={`mailto:${c.email}`}
+          aria-label={`Email ${c.name}`}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-100 hover:bg-white/5"
+        >
+          <Mail className="h-3 w-3" />
+        </a>
+        <Link
+          href={`/admin/customers/${encodeURIComponent(c.email)}`}
+          aria-label={`Open ${c.name}`}
+          className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 px-3 text-[11px] text-ink-100 hover:bg-white/5"
+        >
+          Open
+          <ArrowUpRight className="h-3 w-3" />
+        </Link>
+      </div>
+    ),
+  },
+];

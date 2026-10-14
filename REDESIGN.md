@@ -53,7 +53,7 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ◐ (8) `/dealer` overview adopted KpiRow + StatusBadge; sub-pages (inventory, bookings, sales, customers, marketing, settings) still carry inline markup.
 
 ### Admin
-- ◐ (9) `/admin` overview + `/orders` + `/payments` + `/vehicles` + `/vehicles/new` + `/orders/[id]` + `/payments/[id]` adopt shared primitives; `/customers`, `/analytics`, `/settings`, `/vehicles/[id]`, `/customers/[email]` still inline.
+- ◐ (9) `/admin` overview + `/orders` + `/payments` + `/vehicles` + `/vehicles/new` + `/orders/[id]` + `/payments/[id]` + `/customers` adopt shared primitives; `/analytics`, `/settings`, `/vehicles/[id]`, `/customers/[email]` still inline.
 
 ### Commerce
 - ◐ (10) `/cart`, `/checkout` functional. `/checkout/confirmation` rewritten to never claim payment succeeded — explicit "Awaiting payment", prominent demo-mode disclaimer when backend not configured.
