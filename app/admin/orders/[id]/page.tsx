@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { getVehicleById, getHeroColor } from '@/lib/vehicles/data';
 import { formatPrice } from '@/lib/utils/format';
+import { StatusBadge, statusTone } from '@/components/ui';
 
 export const metadata = { title: 'Order — Admin · mobileDrive' };
 
@@ -93,10 +94,9 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
             <h1 className="font-display text-display-md font-semibold text-white">
               {order.id}
             </h1>
-            <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/15 px-3 py-1.5 text-xs font-medium text-amber-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-              In production
-            </span>
+            <StatusBadge tone={statusTone(order.status)} dot>
+              {order.status === 'production' ? 'In production' : order.status[0].toUpperCase() + order.status.slice(1)}
+            </StatusBadge>
           </div>
           <p className="mt-2 text-sm text-ink-200">
             Placed {new Date(order.placed).toLocaleString()} · {order.buyer.name}
@@ -273,9 +273,10 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
                 <div className="text-[11px] text-ink-200">Ref {order.payment.providerRef}</div>
               </div>
             </div>
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/15 px-3 py-1 text-[11px] font-medium text-emerald-400">
-              <Check className="h-3 w-3" />
-              Confirmed
+            <div className="mt-4">
+              <StatusBadge tone="info" icon={<Check className="h-3 w-3" />}>
+                Captured (mock)
+              </StatusBadge>
             </div>
           </section>
 

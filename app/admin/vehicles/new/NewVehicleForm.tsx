@@ -2,8 +2,9 @@
 
 import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Upload, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Upload } from 'lucide-react';
 import { createVehicle } from '@/lib/vehicles/actions';
+import { Banner, StatusBadge } from '@/components/ui';
 
 const HERO_COLORS = [
   { id: 'arctic-silver', hex: '#C8CCD0', name: 'Arctic Silver' },
@@ -67,12 +68,7 @@ export function NewVehicleForm() {
         </div>
       </div>
 
-      {error && (
-        <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
+      {error && <Banner tone="danger">{error}</Banner>}
 
       <form
         id="new-vehicle"
@@ -168,9 +164,8 @@ export function NewVehicleForm() {
         <aside className="space-y-5">
           <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
             <div className="eyebrow">Status</div>
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-              <span className="text-white">Draft</span>
+            <div className="mt-3">
+              <StatusBadge tone="warning" dot>Draft</StatusBadge>
             </div>
             <p className="mt-2 text-xs text-ink-200">
               Publishing lists the vehicle in the marketplace immediately.
@@ -259,7 +254,7 @@ function Field({
     <label className="block">
       <span className="eyebrow block">
         {label}
-        {required && <span className="text-red-300"> *</span>}
+        {required && <span className="text-rose-300" aria-hidden> *</span>}
       </span>
       <input
         name={name}
