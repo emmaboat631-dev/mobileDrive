@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import {
   ArrowLeft, Mail, Phone, MapPin, Package, Heart, Zap, Calendar, MessageSquare,
-  Shield, Flag,
+  Shield, Flag, Database,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { StatusBadge, statusTone, Banner } from '@/components/ui';
 
 export const metadata = { title: 'Customer — Admin · mobileDrive' };
 
@@ -57,17 +58,6 @@ const MESSAGES = [
   { from: 'Asiamah', when: '19m ago', text: "Please do, and send the updated invoice via WhatsApp." },
 ];
 
-function statusTone(s: string) {
-  switch (s) {
-    case 'Delivered': return 'bg-emerald-400/15 text-emerald-400 border-emerald-400/30';
-    case 'Production': return 'bg-amber-400/15 text-amber-300 border-amber-400/30';
-    case 'Shipping': return 'bg-sky-400/15 text-sky-300 border-sky-400/30';
-    case 'Confirmed': return 'bg-emerald-400/15 text-emerald-400 border-emerald-400/30';
-    case 'Completed': return 'bg-white/10 text-ink-100 border-white/15';
-    default: return 'bg-white/10 text-ink-100 border-white/15';
-  }
-}
-
 export default function AdminCustomerDetailPage({
   params,
 }: {
@@ -84,6 +74,13 @@ export default function AdminCustomerDetailPage({
         <ArrowLeft className="h-3 w-3" />
         Customers
       </Link>
+
+      <Banner tone="warning" icon={<Database className="h-4 w-4" />} title="Mock customer record">
+        The orders, builds, test drives, wishlist and messages below are illustrative. Once
+        Supabase is configured these panels read live data from <code className="text-white">profiles</code>,{' '}
+        <code className="text-white">orders</code>, <code className="text-white">saved_configurations</code>, and{' '}
+        <code className="text-white">test_drive_bookings</code>.
+      </Banner>
 
       {/* Header card */}
       <section className="rounded-3xl border border-white/[0.06] bg-ink-800/60 p-6">
@@ -103,16 +100,9 @@ export default function AdminCustomerDetailPage({
                 Member since {customer.since} · last seen {customer.lastSeen}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/15 px-2.5 py-0.5 text-[11px] font-medium text-amber-300">
-                  {customer.tier}
-                </span>
+                <StatusBadge tone="warning">{customer.tier}</StatusBadge>
                 {customer.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-ink-700/60 px-2.5 py-0.5 text-[11px] text-ink-100"
-                  >
-                    {t}
-                  </span>
+                  <StatusBadge key={t}>{t}</StatusBadge>
                 ))}
               </div>
             </div>
@@ -150,9 +140,7 @@ export default function AdminCustomerDetailPage({
                       >
                         {o.id}
                       </Link>
-                      <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + statusTone(o.status)}>
-                        {o.status}
-                      </span>
+                      <StatusBadge tone={statusTone(o.status)}>{o.status}</StatusBadge>
                     </div>
                     <div className="mt-0.5 text-xs text-ink-200">
                       {o.vehicle} · {o.date}
@@ -207,9 +195,7 @@ export default function AdminCustomerDetailPage({
                     <div className="text-sm font-medium text-white">{t.vehicle}</div>
                     <div className="text-[11px] text-ink-200">{t.date}</div>
                   </div>
-                  <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + statusTone(t.status)}>
-                    {t.status}
-                  </span>
+                  <StatusBadge tone={statusTone(t.status)}>{t.status}</StatusBadge>
                 </div>
               ))}
             </div>
@@ -244,8 +230,8 @@ export default function AdminCustomerDetailPage({
           <section className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-6">
             <h2 className="font-display text-base font-semibold text-white">Contact</h2>
             <div className="mt-4 space-y-3 text-sm">
-              <ContactRow icon={Mail}  value={customer.email} />
-              <ContactRow icon={Phone} value={customer.phone} />
+              <ContactRow icon={Mail}  value={customer.email}   href={`mailto:${customer.email}`} />
+              <ContactRow icon={Phone} value={customer.phone}   href={`tel:${customer.phone.replace(/\s/g, '')}`} />
               <ContactRow icon={MapPin} value={customer.address} />
             </div>
           </section>
@@ -352,13 +338,29 @@ function Panel({
   );
 }
 
-function ContactRow({ icon: Icon, value }: { icon: React.ComponentType<{ className?: string }>; value: string }) {
-  return (
-    <div className="flex items-start gap-2.5 text-ink-100">
+function ContactRow({
+  icon: Icon,
+  value,
+  href,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  value: string;
+  href?: string;
+}) {
+  const content = (
+    <>
       <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-300" />
       <span className="min-w-0 flex-1 break-words">{value}</span>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <a href={href} className="flex items-start gap-2.5 text-ink-100 transition hover:text-white">
+        {content}
+      </a>
+    );
+  }
+  return <div className="flex items-start gap-2.5 text-ink-100">{content}</div>;
 }
 
 function TrustRow({
