@@ -109,8 +109,8 @@ export default function AccountBuildsPage() {
                 </Link>
                 <button
                   type="button"
-                  aria-label="Delete build"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-red-400/30 text-red-300 hover:bg-red-500/10"
+                  aria-label={`Delete build "${b.label}"`}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-400/30 text-rose-300 hover:bg-rose-500/10"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, Package } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { StatusBadge, statusTone, EmptyState } from '@/components/ui';
 
 export const metadata = { title: 'Orders — Account · mobileDrive' };
 
@@ -8,13 +9,6 @@ const MY_ORDERS = [
   { id: 'MD-2026-1038', placed: 'Oct 6, 2026',  vehicle: 'Porsche 911 Carrera',  total: 123700, status: 'In production', eta: 'Nov 2, 2026',  config: ['Racing Red','Performance','Black Merino','Driver Pkg'] },
   { id: 'MD-2025-0942', placed: 'Dec 11, 2025', vehicle: 'BMW X5 xDrive40i',     total: 68900,  status: 'Delivered',     eta: 'Delivered Feb 3, 2026', config: ['Midnight Blue','Sport','Tan Nappa'] },
 ];
-
-const statusColor: Record<string, string> = {
-  'In production': 'bg-amber-400/15 text-amber-300 border-amber-400/30',
-  'Shipping':      'bg-sky-400/15 text-sky-300 border-sky-400/30',
-  'Delivered':     'bg-emerald-400/15 text-emerald-400 border-emerald-400/30',
-  'Pending':       'bg-white/10 text-ink-100 border-white/15',
-};
 
 export default function AccountOrdersPage() {
   return (
@@ -29,6 +23,14 @@ export default function AccountOrdersPage() {
         </p>
       </header>
 
+      {MY_ORDERS.length === 0 ? (
+        <EmptyState
+          icon={<Package className="h-5 w-5" />}
+          title="No orders yet"
+          description="Configure a vehicle and complete checkout to see production and delivery updates here."
+          action={<Link href="/vehicles" className="btn-primary">Browse vehicles</Link>}
+        />
+      ) : null}
       <div className="space-y-4">
         {MY_ORDERS.map((o) => (
           <article
@@ -49,9 +51,7 @@ export default function AccountOrdersPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className={'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + (statusColor[o.status] ?? statusColor.Pending)}>
-                  {o.status}
-                </span>
+                <StatusBadge tone={statusTone(o.status)}>{o.status}</StatusBadge>
                 <div className="text-right">
                   <div className="font-display text-xl font-semibold text-white tabular-nums">
                     {formatPrice(o.total)}

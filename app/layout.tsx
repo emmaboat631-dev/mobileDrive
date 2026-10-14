@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { MotionProvider } from '@/components/providers/MotionProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,9 +38,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${display.variable}`}>
       <body className="min-h-screen bg-ink-900 font-sans text-ink-50 antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <a
+          href="#main-content"
+          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-[100] focus-visible:rounded-full focus-visible:bg-white focus-visible:px-4 focus-visible:py-2 focus-visible:text-sm focus-visible:font-medium focus-visible:text-ink-900"
+        >
+          Skip to main content
+        </a>
+        <MotionProvider>
+          <Navbar />
+          <main id="main-content">{children}</main>
+          <Footer />
+        </MotionProvider>
       </body>
     </html>
   );

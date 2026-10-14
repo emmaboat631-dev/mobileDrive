@@ -53,13 +53,13 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              aria-label="Search"
+            <Link
+              href="/vehicles"
+              aria-label="Search vehicles"
               className="btn-ghost h-10 w-10 px-0"
             >
               <Search className="h-[18px] w-[18px]" />
-            </button>
+            </Link>
             <Link href="/account" aria-label="Account" className="btn-ghost h-10 w-10 px-0 hidden sm:inline-flex">
               <User className="h-[18px] w-[18px]" />
             </Link>
@@ -73,7 +73,9 @@ export function Navbar() {
             </Link>
             <button
               type="button"
-              aria-label="Menu"
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              aria-expanded={open}
+              aria-controls="mobile-nav"
               onClick={() => setOpen((v) => !v)}
               className="btn-ghost h-10 w-10 px-0 md:hidden"
             >
@@ -84,7 +86,7 @@ export function Navbar() {
       </header>
 
       {open && (
-        <div className="fixed inset-x-0 top-16 z-30 border-b border-white/[0.06] bg-ink-900/95 backdrop-blur-xl md:hidden">
+        <div id="mobile-nav" className="fixed inset-x-0 top-16 z-30 border-b border-white/[0.06] bg-ink-900/95 backdrop-blur-xl md:hidden">
           <nav className="container-page flex flex-col py-4">
             {NAV_ITEMS.map((item) => (
               <Link

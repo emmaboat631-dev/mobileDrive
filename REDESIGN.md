@@ -59,8 +59,9 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ◐ (10) `/cart`, `/checkout` functional. `/checkout/confirmation` rewritten to never claim payment succeeded — explicit "Awaiting payment", prominent demo-mode disclaimer when backend not configured.
 
 ### Cross-cutting
-- ☐ Responsive QA pass (320 → 1536px) on every shipped surface — not performed; sandbox environment has no browser.
-- ☐ Reduced-motion audit — global CSS override is in place; per-page confirmation pending.
+- ☐ Responsive QA pass (320 → 1536px) on every shipped surface — not performed; sandbox has neither Playwright nor a browser binary.
+- ◐ Reduced-motion — global CSS override + Framer `MotionConfig reducedMotion="user"` wrapper in root layout. User-triggered OS preference now disables both CSS transitions and framer-motion entrances.
+- ◐ Keyboard access — global `:focus-visible` outlines added, visible on both dark and light buttons; skip-to-main link; mobile menu now exposes `aria-expanded`/`aria-controls`; Navbar Search is a real link, not a dead button.
 - ☐ Final README update replacing stale Phase 1 narrative — not touched.
 - ☐ Visual QA against reference images / HTML prototype — reference assets not provided to the session, so could not compare.
 

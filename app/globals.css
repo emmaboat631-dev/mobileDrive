@@ -56,6 +56,28 @@ body {
   * {
     border-color: rgba(255, 255, 255, 0.06);
   }
+
+  /*
+   * Visible keyboard focus. Browsers only apply :focus-visible on keyboard
+   * navigation, so mouse clicks don't paint a ring. A 2px white outline with
+   * 2px offset against the dark surface meets WCAG 2.4.11 non-text contrast.
+   */
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  /* Light rings on the all-white primary button so the focus mark is visible. */
+  .btn-primary:focus-visible {
+    outline-color: #07080A;
+    outline-offset: 3px;
+  }
+}
+
+/* Honour prefers-reduced-motion for user-triggered motion as well. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 @layer components {
