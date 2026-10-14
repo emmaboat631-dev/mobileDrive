@@ -134,6 +134,33 @@ export interface Database {
         };
         Update: Partial<Database['public']['Tables']['orders']['Insert']>;
       };
+      test_drive_bookings: {
+        Row: {
+          id: string;
+          user_id: string;
+          vehicle_id: string;
+          scheduled_at: string;
+          full_name: string;
+          phone: string;
+          notes: string | null;
+          status: 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'completed';
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          vehicle_id: string;
+          scheduled_at: string;
+          full_name: string;
+          phone: string;
+          notes?: string | null;
+          status?: 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'completed';
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['test_drive_bookings']['Insert']>;
+      };
       order_items: {
         Row: {
           id: string;

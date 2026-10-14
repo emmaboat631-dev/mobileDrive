@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
-  const protectedPaths = ['/account', '/checkout', '/admin', '/dealer'];
+  const protectedPaths = ['/account', '/checkout', '/admin', '/dealer', '/test-drive'];
   const requiresAuth = protectedPaths.some((p) => pathname.startsWith(p));
   if (requiresAuth && !user) {
     const url = request.nextUrl.clone();

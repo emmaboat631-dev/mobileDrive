@@ -26,10 +26,10 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☑ Vehicle detail tabs — Specifications / Features / Interior (phase 2D-D)
 - ☑ Compare page — working picker, URL state, best-row highlight (phase 2D-C)
 - ☑ Auth unification — one AuthLayout for sign-in / sign-up / forgot-password (phase 2F-Auth)
-- ◐ Card primitive adoption sweep — Card/SectionHeader/StatTile/EmptyState exist and are opt-in; ~2 pages have adopted them. Remaining pages still use inline card markup.
+- ◐ Card primitive adoption sweep — Card/SectionHeader/StatTile/EmptyState/Kpi/StatusBadge adopted in admin / dealer / account overviews and confirmation. ~80 inline cards remain across sub-pages.
 - ☐ Loading states — `app/loading.tsx` already present and sufficient. Per-route skeletons: not needed yet.
 - ☐ Error states — `app/error.tsx` and `/not-found` already polished. Inline empty states standardised through `EmptyState`.
-- ☐ Shared data primitives — `DataTable`, `KpiRow`, `StatusBadge`, `FormField` not yet extracted (admin/dealer rebuilds will need them).
+- ☑ Shared data primitives — `KpiRow`, `StatusBadge`, `statusTone()` extracted and in use. `DataTable` + `FormField` still pending.
 
 ### Public surface
 - ☑ (1) Homepage — editorial Hero + ShopByCategory + FeaturedRail + Studio.
@@ -44,18 +44,18 @@ Status: ☐ not started · ◐ in progress · ☑ done
 - ☑ (6) `/sign-in`, `/sign-up`, `/forgot-password` — unified `AuthLayout` template.
 
 ### Customer
-- ◐ (7) `/account` overview — functional, visually serviceable. Visual pass to adopt shared primitives: pending.
+- ☑ (7) `/account` overview — StatusBadge adopted; functional, consistent with the system.
 - ◐ (7) `/account/builds`, `/orders`, `/orders/[id]`, `/settings` — functional. Not reviewed in detail this session.
-- ☐ (10) Test-drive booking + reservation flow — not implemented; copy-only references in overview.
+- ☑ (10) Test-drive booking — `/test-drive/[id]` page + form + server action + `test_drive_bookings` migration + RLS. Validates business hours (09:00–18:00), 30-min lead, 60-day horizon, phone format. Duplicate check on (user, vehicle, time). Falls back to local-only when Supabase isn't configured; UI is honest about this.
 
 ### Dealer
-- ◐ (8) `/dealer` overview, inventory, bookings, sales, customers, marketing, settings — functional pages exist, hardcoded label fixed. Full visual redesign pending.
+- ◐ (8) `/dealer` overview adopted KpiRow + StatusBadge; sub-pages (inventory, bookings, sales, customers, marketing, settings) still carry inline markup.
 
 ### Admin
-- ◐ (9) `/admin` overview, vehicles (list/new/edit), orders, customers, payments, analytics, settings — functional pages exist. Full visual redesign pending.
+- ◐ (9) `/admin` overview adopted KpiRow + StatusBadge; sub-pages (vehicles, orders, customers, payments, analytics, settings) still carry inline markup.
 
 ### Commerce
-- ◐ (10) `/cart`, `/checkout`, `/checkout/confirmation` — cart is functional with real store. Checkout and confirmation not visually reviewed this session.
+- ◐ (10) `/cart`, `/checkout` functional. `/checkout/confirmation` rewritten to never claim payment succeeded — explicit "Awaiting payment", prominent demo-mode disclaimer when backend not configured.
 
 ### Cross-cutting
 - ☐ Responsive QA pass (320 → 1536px) on every shipped surface — not performed; sandbox environment has no browser.

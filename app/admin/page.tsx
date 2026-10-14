@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, Package, Users, DollarSign, Car } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { listVehicles, getHeroColor } from '@/lib/vehicles/data';
 import { formatPrice } from '@/lib/utils/format';
+import { KpiRow, StatusBadge, statusTone } from '@/components/ui';
 
 const RECENT_ORDERS = [
   { id: 'MD-2026-1038', buyer: 'Asiamah Joshua', vehicle: 'Porsche 911 Carrera', amount: 123700, status: 'Production', when: '2h ago' },
@@ -11,15 +12,6 @@ const RECENT_ORDERS = [
   { id: 'MD-2026-1034', buyer: 'Yaw Ampah',       vehicle: 'Mercedes-AMG GT',     amount: 142800, status: 'Production', when: '4 days ago' },
 ];
 
-function statusColor(s: string) {
-  switch (s) {
-    case 'Delivered':  return 'bg-emerald-400/15 text-emerald-400 border-emerald-400/30';
-    case 'Shipping':   return 'bg-sky-400/15 text-sky-300 border-sky-400/30';
-    case 'Production': return 'bg-amber-400/15 text-amber-300 border-amber-400/30';
-    case 'Pending':    return 'bg-white/10 text-ink-100 border-white/15';
-    default:           return 'bg-white/10 text-ink-100 border-white/15';
-  }
-}
 
 export default function AdminOverviewPage() {
   const vehicles = listVehicles().slice(0, 5);
@@ -39,13 +31,14 @@ export default function AdminOverviewPage() {
         </Link>
       </div>
 
-      {/* KPIs */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi label="Revenue (7d)"       value="$1.86M" delta="+12.4%" icon={DollarSign} tone="good" />
-        <Kpi label="Orders (7d)"        value="18"     delta="+3"      icon={Package} />
-        <Kpi label="Active customers"   value="412"    delta="+22"     icon={Users} />
-        <Kpi label="Inventory listings" value="124"    delta="+6"      icon={Car} />
-      </div>
+      <KpiRow
+        items={[
+          { label: 'Revenue (7d)',       value: '$1.86M', delta: '+12.4%', deltaTone: 'good' },
+          { label: 'Orders (7d)',        value: '18',     delta: '+3',     deltaTone: 'good' },
+          { label: 'Active customers',   value: '412',    delta: '+22',    deltaTone: 'good' },
+          { label: 'Inventory listings', value: '124',    delta: '+6',     deltaTone: 'good' },
+        ]}
+      />
 
       {/* Chart stub + recent orders */}
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
@@ -136,9 +129,7 @@ export default function AdminOverviewPage() {
                     {formatPrice(o.amount)}
                   </td>
                   <td className="px-6 py-3.5">
-                    <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + statusColor(o.status)}>
-                      {o.status}
-                    </span>
+                    <StatusBadge tone={statusTone(o.status)}>{o.status}</StatusBadge>
                   </td>
                   <td className="px-6 py-3.5 text-ink-200">{o.when}</td>
                   <td className="px-6 py-3.5 text-right">
@@ -208,35 +199,6 @@ export default function AdminOverviewPage() {
           })}
         </div>
       </section>
-    </div>
-  );
-}
-
-function Kpi({
-  label, value, delta, icon: Icon, tone,
-}: {
-  label: string;
-  value: string;
-  delta?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  tone?: 'good';
-}) {
-  return (
-    <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
-      <div className="flex items-start justify-between">
-        <div className="eyebrow">{label}</div>
-        <Icon className="h-4 w-4 text-ink-300" />
-      </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <div className="font-display text-3xl font-semibold -tracking-[0.025em] text-white tabular-nums">
-          {value}
-        </div>
-        {delta && (
-          <span className={'text-xs font-medium ' + (tone === 'good' ? 'text-emerald-400' : 'text-ink-200')}>
-            {delta}
-          </span>
-        )}
-      </div>
     </div>
   );
 }

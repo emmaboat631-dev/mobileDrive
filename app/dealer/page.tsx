@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Plus, CalendarClock } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { KpiRow, StatusBadge } from '@/components/ui';
 
 const UPCOMING = [
   { day: 7,  month: 'Oct', when: '09:30', buyer: 'Asiamah Joshua', vehicle: 'Porsche 911 Carrera',   confirmed: true },
@@ -42,33 +43,14 @@ export default function DealerDashboardPage() {
         </Link>
       </header>
 
-      {/* KPIs */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
-          <div className="eyebrow">Inventory</div>
-          <div className="mt-2 font-display text-3xl font-semibold -tracking-[0.025em] text-white">24</div>
-          <div className="text-[11px] text-ink-200">4 reserved · 2 low stock</div>
-        </div>
-        <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
-          <div className="eyebrow">Test drives (7d)</div>
-          <div className="mt-2 font-display text-3xl font-semibold -tracking-[0.025em] text-white">18</div>
-          <div className="text-[11px] text-emerald-400">+6 vs last week</div>
-        </div>
-        <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
-          <div className="eyebrow">Sales (7d)</div>
-          <div className="mt-2 font-display text-3xl font-semibold -tracking-[0.025em] text-white">
-            {formatPrice(salesTotalK * 1000)}
-          </div>
-          <div className="text-[11px] text-emerald-400">+9.1% vs last week</div>
-        </div>
-        <div className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-5">
-          <div className="eyebrow">Conversion</div>
-          <div className="mt-2 font-display text-3xl font-semibold -tracking-[0.025em] text-white">
-            32<span className="text-base text-ink-200">%</span>
-          </div>
-          <div className="text-[11px] text-ink-200">Test drive → order</div>
-        </div>
-      </div>
+      <KpiRow
+        items={[
+          { label: 'Inventory',       value: '24',                               hint: '4 reserved · 2 low stock' },
+          { label: 'Test drives (7d)',value: '18',                               delta: '+6 vs last week',         deltaTone: 'good' },
+          { label: 'Sales (7d)',      value: formatPrice(salesTotalK * 1000),    delta: '+9.1% vs last week',      deltaTone: 'good' },
+          { label: 'Conversion',      value: '32', unit: '%',                    hint: 'Test drive → order' },
+        ]}
+      />
 
       {/* Sales chart + upcoming */}
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
@@ -131,17 +113,12 @@ export default function DealerDashboardPage() {
                   <div className="truncate text-sm font-medium text-white">{t.vehicle}</div>
                   <div className="text-[11px] text-ink-200">{t.buyer} · {t.when}</div>
                 </div>
-                <span
-                  className={
-                    'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium ' +
-                    (t.confirmed
-                      ? 'border-emerald-400/30 bg-emerald-400/15 text-emerald-400'
-                      : 'border-amber-400/30 bg-amber-400/15 text-amber-300')
-                  }
+                <StatusBadge
+                  tone={t.confirmed ? 'success' : 'warning'}
+                  icon={<CalendarClock className="h-2.5 w-2.5" />}
                 >
-                  <CalendarClock className="h-2.5 w-2.5" />
                   {t.confirmed ? 'Confirmed' : 'Pending'}
-                </span>
+                </StatusBadge>
               </li>
             ))}
           </ul>

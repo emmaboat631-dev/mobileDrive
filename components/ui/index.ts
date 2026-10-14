@@ -4,3 +4,5 @@ export { StatTile } from './StatTile';
 export { Tag } from './Tag';
 export { EmptyState } from './EmptyState';
 export { Divider } from './Divider';
+export { Kpi, KpiRow, type KpiProps } from './Kpi';
+export { StatusBadge, statusTone, type StatusTone } from './StatusBadge';

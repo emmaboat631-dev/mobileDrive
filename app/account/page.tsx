@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { AccountKpis } from './AccountKpis';
+import { StatusBadge } from '@/components/ui';
 
 const TRACKER = ['Order placed', 'In production', 'Quality check', 'Shipping', 'Delivered'];
 
@@ -30,10 +31,7 @@ export default function AccountOverviewPage() {
               Porsche 911 Carrera
             </h2>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1.5 text-xs font-medium text-emerald-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            In production
-          </span>
+          <StatusBadge tone="info" dot>In production</StatusBadge>
         </div>
 
         <div className="mt-6 flex items-center">
