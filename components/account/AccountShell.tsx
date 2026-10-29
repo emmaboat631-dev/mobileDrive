@@ -15,7 +15,19 @@ const NAV = [
   { href: '/account/settings', icon: Settings, label: 'Settings' },
 ];
 
-export function AccountShell({ children }: { children: React.ReactNode }) {
+export interface AccountShellUser {
+  initials: string;
+  displayName: string;
+  subtitle: string;
+}
+
+export function AccountShell({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: AccountShellUser;
+}) {
   const pathname = usePathname();
 
   return (
@@ -27,11 +39,11 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
               className="grid h-11 w-11 place-items-center rounded-full font-semibold text-white"
               style={{ background: 'linear-gradient(135deg, #A078FF, #FF78A0)' }}
             >
-              A
+              {user.initials}
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-white">Asiamah J.</div>
-              <div className="text-[11px] text-ink-200">Premium member</div>
+              <div className="truncate text-sm font-semibold text-white">{user.displayName}</div>
+              <div className="text-[11px] text-ink-200">{user.subtitle}</div>
             </div>
           </div>
           <div className="my-5 h-px bg-white/[0.06]" />

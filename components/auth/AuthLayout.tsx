@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { Lockup } from '@/components/brand/Logo';
 
 interface AuthLayoutProps {
   /** Marketing headline on the left pane. Keep to one or two short lines. */
@@ -38,10 +39,10 @@ export function AuthLayout({ headline, description, aside, children }: AuthLayou
         />
         <Link
           href="/"
-          className="relative z-10 flex items-center gap-2.5 px-12 pt-12 text-white"
+          aria-label="mobileDrive — home"
+          className="relative z-10 flex items-center px-12 pt-12 text-white"
         >
-          <span className="h-[18px] w-[18px] rounded-full bg-white" />
-          <span className="font-display text-lg font-semibold">mobileDrive</span>
+          <Lockup size="lg" tone="light" />
         </Link>
         <div className="relative z-10 mt-32 px-12">
           <h2 className="max-w-xl font-display text-5xl font-semibold leading-[1.05] -tracking-[0.025em] text-white">

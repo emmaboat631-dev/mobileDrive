@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useCart } from '@/store/cartStore';
+import { Lockup } from '@/components/brand/Logo';
 
 const NAV_ITEMS = [
   { href: '/vehicles', label: 'Vehicles' },
@@ -37,11 +38,12 @@ export function Navbar() {
         )}
       >
         <div className="container-page flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white">
-            <LogoMark />
-            <span className="font-display text-base font-semibold tracking-tight">
-              mobileDrive
-            </span>
+          <Link
+            href="/"
+            aria-label="mobileDrive — home"
+            className="flex items-center text-white"
+          >
+            <Lockup size="md" />
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -112,17 +114,3 @@ export function Navbar() {
   );
 }
 
-function LogoMark() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M3 15.5c0-1 .4-1.9 1.1-2.6l5-5c.7-.7 1.6-1.1 2.6-1.1h.6c1 0 1.9.4 2.6 1.1l5 5c.7.7 1.1 1.6 1.1 2.6V17a2 2 0 0 1-2 2h-1.1a2 2 0 0 1-1.9-1.4l-.3-.9H8l-.3.9A2 2 0 0 1 5.8 19H4.7a2 2 0 0 1-2-2v-1.5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <circle cx="8" cy="15.5" r="1.3" fill="currentColor" />
-      <circle cx="16" cy="15.5" r="1.3" fill="currentColor" />
-    </svg>
-  );
-}

@@ -6,6 +6,7 @@ import type { Vehicle } from '@/types/vehicle';
 import { computeTotal, useConfigurator } from '@/store/configuratorStore';
 import { useCart } from '@/store/cartStore';
 import { useWishlist } from '@/store/wishlistStore';
+import { toast } from '@/store/toastStore';
 import { ColorPicker } from './ColorPicker';
 import { OptionList } from './OptionList';
 import { formatPrice, formatDelta } from '@/lib/utils/format';
@@ -46,6 +47,10 @@ export function ConfiguratorPanel({ vehicle }: { vehicle: Vehicle }) {
       packageIds,
     });
     setJustAdded(true);
+    toast.success(`Added to cart`, `${vehicle.brand} ${vehicle.model}`, {
+      action: { label: 'Open cart', href: '/cart' },
+      duration: 3500,
+    });
     window.setTimeout(() => router.push('/cart'), 650);
   }
 
@@ -67,7 +72,7 @@ export function ConfiguratorPanel({ vehicle }: { vehicle: Vehicle }) {
         </div>
       </div>
 
-      <div className="flex-1 space-y-7 overflow-y-auto px-6 py-6">
+      <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6">
         <ColorPicker
           colors={vehicle.availableColors}
           selectedId={colorId}

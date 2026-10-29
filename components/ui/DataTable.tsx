@@ -38,7 +38,7 @@ export function DataTable<T>({ columns, rows, getKey, empty, rowHref, className 
   }
 
   return (
-    <div className={cn('overflow-x-auto rounded-2xl border border-white/[0.06] bg-ink-800/60', className)}>
+    <div className={cn('stack-table overflow-x-auto rounded-2xl border border-white/[0.06] bg-ink-800/60', className)}>
       <table className="w-full text-sm">
         <thead className="border-b border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
           <tr>
@@ -63,6 +63,7 @@ export function DataTable<T>({ columns, rows, getKey, empty, rowHref, className 
             const content = columns.map((c) => (
               <td
                 key={c.key}
+                data-label={typeof c.header === 'string' ? c.header : ''}
                 className={cn(
                   'px-6 py-3.5',
                   c.align === 'right' && 'text-right',

@@ -1,32 +1,11 @@
 import Link from 'next/link';
 import { ArrowUpRight, Download, RefreshCcw, Search, CreditCard, Smartphone, Building2, Database } from 'lucide-react';
-import { formatPrice } from '@/lib/utils/format';
-import { KpiRow, StatusBadge, DataTable, Banner, type DataTableColumn } from '@/components/ui';
+import { formatPrice, relativeTime } from '@/lib/utils/format';
+import { KpiRow, StatusBadge, DataTable, Banner, DemoBadge, type DataTableColumn } from '@/components/ui';
+import { fetchTransactions, type TxnRow } from '@/lib/admin/payments';
 
 export const metadata = { title: 'Payments — Admin · mobileDrive' };
-
-interface Txn {
-  id: string;
-  orderId: string;
-  buyer: string;
-  method: 'Card' | 'MTN MoMo' | 'Telecel Cash' | 'AirtelTigo' | 'Paystack';
-  provider: 'Stripe' | 'Paystack' | 'Mobile money';
-  amount: number;
-  status: 'Captured' | 'Pending' | 'Refunded' | 'Failed';
-  when: string;
-}
-
-const TXNS: Txn[] = [
-  { id: 'ch_3Phvy2EXAMPLE123', orderId: 'MD-2026-1038', buyer: 'Asiamah Joshua', method: 'Card',         provider: 'Stripe',        amount: 123700, status: 'Captured', when: '2h ago' },
-  { id: 'tx_mtn_8842901',      orderId: 'MD-2026-1037', buyer: 'Nia Mensah',      method: 'MTN MoMo',     provider: 'Mobile money',  amount: 87700,  status: 'Captured', when: 'Yesterday' },
-  { id: 'tx_pay_1920384',      orderId: 'MD-2026-1036', buyer: 'Kojo Boateng',    method: 'Paystack',     provider: 'Paystack',      amount: 108300, status: 'Captured', when: '2 days ago' },
-  { id: 'ch_3Pfj4K778xyz',     orderId: 'MD-2026-1035', buyer: 'Ama Owusu',       method: 'Card',         provider: 'Stripe',        amount: 14150,  status: 'Pending',  when: '3 days ago' },
-  { id: 'ch_3Pdd92Dkabcd',     orderId: 'MD-2026-1034', buyer: 'Yaw Ampah',       method: 'Card',         provider: 'Stripe',        amount: 142800, status: 'Captured', when: '4 days ago' },
-  { id: 'tx_tel_7716603',      orderId: 'MD-2026-1033', buyer: 'Serwaa Appiah',   method: 'Telecel Cash', provider: 'Mobile money',  amount: 112400, status: 'Captured', when: '5 days ago' },
-  { id: 'tx_pay_1927714',      orderId: 'MD-2026-1032', buyer: 'Kwesi Darko',     method: 'Paystack',     provider: 'Paystack',      amount: 94300,  status: 'Captured', when: '1 week ago' },
-  { id: 'ch_3Pbb30refund2',    orderId: 'MD-2026-1031', buyer: 'Afia Kusi',       method: 'Card',         provider: 'Stripe',        amount: 128900, status: 'Refunded', when: '1 week ago' },
-  { id: 'ch_3PaaFaild0',       orderId: 'MD-2026-1030', buyer: 'Mohammed Ali',    method: 'Card',         provider: 'Stripe',        amount: 83200,  status: 'Failed',   when: '9 days ago' },
-];
+export const dynamic = 'force-dynamic';
 
 const PAYOUTS = [
   { id: 'po_2026_1004', date: 'Oct 4, 2026',  bank: 'GCB · ••7612',   amount: 582400, status: 'Paid' },
@@ -35,20 +14,21 @@ const PAYOUTS = [
   { id: 'po_2026_1011', date: 'Oct 11, 2026', bank: 'GCB · ••7612',   amount: 696200, status: 'In transit' },
 ];
 
-function txnTone(s: Txn['status']) {
+function txnTone(s: TxnRow['status']) {
   if (s === 'Captured') return 'success' as const;
   if (s === 'Pending')  return 'warning' as const;
   if (s === 'Refunded') return 'info' as const;
   return 'danger' as const;
 }
 
-function methodIcon(m: Txn['method']) {
-  if (m === 'Card') return CreditCard;
-  if (m === 'Paystack') return Building2;
+function methodIcon(provider: string) {
+  if (provider === 'Stripe') return CreditCard;
+  if (provider === 'Paystack') return Building2;
   return Smartphone;
 }
 
-export default function AdminPaymentsPage() {
+export default async function AdminPaymentsPage() {
+  const TXNS = await fetchTransactions(50);
   const captured = TXNS.filter((t) => t.status === 'Captured').reduce((s, t) => s + t.amount, 0);
   const pending = TXNS.filter((t) => t.status === 'Pending').reduce((s, t) => s + t.amount, 0);
   const refunded = TXNS.filter((t) => t.status === 'Refunded').reduce((s, t) => s + t.amount, 0);
@@ -80,13 +60,6 @@ export default function AdminPaymentsPage() {
           Export CSV
         </button>
       </header>
-
-      <Banner tone="warning" icon={<Database className="h-4 w-4" />} title="Demo data">
-        Payment adapters in <code className="text-white">lib/payments/providers.ts</code> are
-        mocks. The transactions and payouts below are placeholders — no real money has
-        moved. Wire real Stripe / Paystack / Mobile-money adapters before relying on
-        this data.
-      </Banner>
 
       <KpiRow
         items={[
@@ -163,7 +136,7 @@ export default function AdminPaymentsPage() {
           ))}
         </div>
 
-        <DataTable<Txn>
+        <DataTable<TxnRow>
           rows={TXNS}
           getKey={(t) => t.id}
           columns={txnColumns}
@@ -174,7 +147,10 @@ export default function AdminPaymentsPage() {
       <section className="space-y-3">
         <header className="flex items-center justify-between">
           <div>
-            <div className="eyebrow">Payouts</div>
+            <div className="flex items-center gap-3">
+              <div className="eyebrow">Payouts</div>
+              <DemoBadge note="Needs a payouts table + Paystack settlement reconciliation." />
+            </div>
             <h2 className="mt-1 font-display text-xl font-semibold text-white">Weekly settlements</h2>
           </div>
           <button type="button" className="btn-secondary text-xs">
@@ -191,26 +167,26 @@ export default function AdminPaymentsPage() {
   );
 }
 
-const txnColumns: DataTableColumn<Txn>[] = [
-  { key: 'id',       header: 'Txn id',  render: (t) => <span className="font-mono text-[11px] text-ink-100">{t.id}</span> },
-  { key: 'order',    header: 'Order',   render: (t) => <Link href={`/admin/orders/${t.orderId}`} className="font-medium text-white hover:underline">{t.orderId}</Link> },
+const txnColumns: DataTableColumn<TxnRow>[] = [
+  { key: 'id',       header: 'Txn id',  render: (t) => <span className="font-mono text-[11px] text-ink-100">{t.providerRef ?? t.id.slice(0, 10)}</span> },
+  { key: 'order',    header: 'Order',   render: (t) => t.orderId ? <Link href={`/admin/orders/${t.orderId}`} className="font-medium text-white hover:underline">{t.orderId.slice(0, 8).toUpperCase()}</Link> : <span className="text-ink-300">—</span> },
   { key: 'buyer',    header: 'Buyer',   render: (t) => t.buyer },
   {
     key: 'method',
     header: 'Method',
     render: (t) => {
-      const MIcon = methodIcon(t.method);
+      const MIcon = methodIcon(t.provider);
       return (
         <span className="inline-flex items-center gap-2">
           <MIcon className="h-3.5 w-3.5 text-ink-300" />
-          {t.method}
+          <span className="capitalize">{t.method}</span>
         </span>
       );
     },
   },
   { key: 'amount',   header: 'Amount',  tabular: true, render: (t) => <span className="font-medium text-white">{formatPrice(t.amount)}</span> },
   { key: 'status',   header: 'Status',  render: (t) => <StatusBadge tone={txnTone(t.status)}>{t.status}</StatusBadge> },
-  { key: 'when',     header: 'When',    render: (t) => <span className="text-ink-200">{t.when}</span> },
+  { key: 'when',     header: 'When',    render: (t) => <span className="text-ink-200">{relativeTime(t.when)}</span> },
   {
     key: 'actions',
     header: '',

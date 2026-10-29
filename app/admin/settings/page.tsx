@@ -1,4 +1,5 @@
 import { Save, Trash2, UserPlus, ShieldCheck, Globe, Receipt, Palette } from 'lucide-react';
+import { DemoBadge } from '@/components/ui';
 
 export const metadata = { title: 'Settings — Admin · mobileDrive' };
 
@@ -13,7 +14,10 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <div className="eyebrow">Settings</div>
+        <div className="flex items-center gap-3">
+          <div className="eyebrow">Settings</div>
+          <DemoBadge note="Team roster + currencies + integrations are not persisted yet." />
+        </div>
         <h1 className="mt-2 font-display text-display-md font-semibold text-white">
           Platform settings
         </h1>
@@ -87,7 +91,7 @@ export default function AdminSettingsPage() {
         </SectionCard>
 
         <SectionCard icon={UserPlus} title="Team" subtitle="Who can access this admin area.">
-          <div className="overflow-hidden rounded-xl border border-white/[0.04]">
+          <div className="stack-table overflow-hidden rounded-xl border border-white/[0.04]">
             <table className="w-full text-sm">
               <thead className="bg-ink-700/40 text-left text-[11px] uppercase tracking-wider text-ink-300">
                 <tr>
@@ -100,7 +104,7 @@ export default function AdminSettingsPage() {
               <tbody className="divide-y divide-white/[0.04]">
                 {TEAM.map((m) => (
                   <tr key={m.email}>
-                    <td className="px-4 py-3">
+                    <td data-label="Member" className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div
                           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-white"
@@ -114,13 +118,13 @@ export default function AdminSettingsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Role" className="px-4 py-3">
                       <span className="inline-flex rounded-full border border-white/15 bg-ink-700/60 px-2.5 py-0.5 text-[11px] text-ink-100">
                         {m.role}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-ink-200 tabular-nums">{m.added}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td data-label="Added" className="px-4 py-3 text-ink-200 tabular-nums">{m.added}</td>
+                    <td data-label="" className="px-4 py-3 text-right">
                       {m.role === 'Owner' ? (
                         <span className="text-[11px] text-ink-300">—</span>
                       ) : (

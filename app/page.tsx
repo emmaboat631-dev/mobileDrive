@@ -1,13 +1,13 @@
-import { Hero } from '@/components/home/Hero';
 import { ShopByCategory } from '@/components/home/ShopByCategory';
 import { FeaturedRail } from '@/components/home/FeaturedRail';
+import { ScrollShowcase } from '@/components/home/ScrollShowcase';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export default function HomePage() {
   return (
     <>
-      <Hero />
+      <ScrollShowcase />
       <ShopByCategory />
       <FeaturedRail />
 
@@ -25,10 +25,10 @@ export default function HomePage() {
               presets and fullscreen when you want to look closer.
             </p>
             <dl className="mt-8 grid grid-cols-2 gap-x-10 gap-y-5 border-t border-white/[0.06] pt-6">
-              <SmallStat label="Paint finishes" value="12" />
+              <SmallStat label="Paint finishes" value="6" />
               <SmallStat label="Wheel designs" value="4" />
               <SmallStat label="Interior trims" value="4" />
-              <SmallStat label="Camera presets" value="4" />
+              <SmallStat label="Camera views" value="5" />
             </dl>
           </div>
 

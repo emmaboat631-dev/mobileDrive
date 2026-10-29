@@ -9,16 +9,11 @@ import { useConfigurator } from '@/store/configuratorStore';
 import { ConfiguratorPanel } from '@/components/configurator/ConfiguratorPanel';
 import { CameraToolbar } from '@/components/configurator/CameraToolbar';
 
+import { ViewerLoading } from '@/components/3d/ViewerLoading';
+
 const CarViewer = dynamic(
   () => import('@/components/3d/CarViewer').then((m) => m.CarViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="text-sm text-ink-200">Preparing your vehicle…</div>
-      </div>
-    ),
-  },
+  { ssr: false, loading: () => <ViewerLoading /> },
 );
 
 export function ConfigureClient({ vehicle }: { vehicle: Vehicle }) {
@@ -48,8 +43,8 @@ export function ConfigureClient({ vehicle }: { vehicle: Vehicle }) {
   }, [sheetOpen]);
 
   return (
-    <div className="relative h-[100svh] w-full overflow-hidden bg-ink-900 pt-16">
-      <div className="grid h-full grid-cols-1 lg:grid-cols-[1fr_420px]">
+    <div className="relative h-[calc(100svh-4rem)] w-full overflow-hidden bg-ink-900 mt-16">
+      <div className="grid h-full grid-cols-1 lg:grid-cols-[1fr_420px] [&>*]:min-h-0">
         {/* 3D stage */}
         <div className="relative h-full min-h-[400px]">
           <CarViewer

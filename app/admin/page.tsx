@@ -1,20 +1,15 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { listVehicles, getHeroColor } from '@/lib/vehicles/data';
-import { formatPrice } from '@/lib/utils/format';
-import { KpiRow, StatusBadge, statusTone } from '@/components/ui';
+import { getHeroColor } from '@/lib/vehicles/data';
+import { fetchVehicles, fetchOrders } from '@/lib/admin/queries';
+import { formatPrice, relativeTime } from '@/lib/utils/format';
+import { KpiRow, StatusBadge, statusTone, EmptyState } from '@/components/ui';
 
-const RECENT_ORDERS = [
-  { id: 'MD-2026-1038', buyer: 'Asiamah Joshua', vehicle: 'Porsche 911 Carrera', amount: 123700, status: 'Production', when: '2h ago' },
-  { id: 'MD-2026-1037', buyer: 'Nia Mensah',      vehicle: 'BMW M4 Competition',  amount: 87700,  status: 'Shipping',   when: 'Yesterday' },
-  { id: 'MD-2026-1036', buyer: 'Kojo Boateng',    vehicle: 'Tesla Model S',       amount: 108300, status: 'Delivered',  when: '2 days ago' },
-  { id: 'MD-2026-1035', buyer: 'Ama Owusu',       vehicle: 'Audi RS6 Avant',      amount: 141500, status: 'Pending',    when: '3 days ago' },
-  { id: 'MD-2026-1034', buyer: 'Yaw Ampah',       vehicle: 'Mercedes-AMG GT',     amount: 142800, status: 'Production', when: '4 days ago' },
-];
+export const dynamic = 'force-dynamic';
 
-
-export default function AdminOverviewPage() {
-  const vehicles = listVehicles().slice(0, 5);
+export default async function AdminOverviewPage() {
+  const [allVehicles, RECENT_ORDERS] = await Promise.all([fetchVehicles(), fetchOrders(5)]);
+  const vehicles = allVehicles.slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -106,7 +101,7 @@ export default function AdminOverviewPage() {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </header>
-        <div className="overflow-x-auto">
+        <div className="stack-table overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-y border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
               <tr>
@@ -120,19 +115,22 @@ export default function AdminOverviewPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
+              {RECENT_ORDERS.length === 0 && (
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-ink-200">No orders yet — this fills in once a customer completes checkout.</td></tr>
+              )}
               {RECENT_ORDERS.map((o) => (
                 <tr key={o.id} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-3.5 font-medium text-white">{o.id}</td>
-                  <td className="px-6 py-3.5 text-ink-100">{o.buyer}</td>
-                  <td className="px-6 py-3.5 text-ink-100">{o.vehicle}</td>
-                  <td className="px-6 py-3.5 font-medium text-white tabular-nums">
-                    {formatPrice(o.amount)}
+                  <td data-label="Order" className="px-6 py-3.5 font-medium text-white">{o.id.slice(0, 8)}</td>
+                  <td data-label="Customer" className="px-6 py-3.5 text-ink-100">{o.buyer_name ?? o.buyer_email ?? '—'}</td>
+                  <td data-label="Vehicle" className="px-6 py-3.5 text-ink-100">{o.items_summary || '—'}</td>
+                  <td data-label="Amount" className="px-6 py-3.5 font-medium text-white tabular-nums">
+                    {formatPrice(o.grand_total)}
                   </td>
-                  <td className="px-6 py-3.5">
+                  <td data-label="Status" className="px-6 py-3.5">
                     <StatusBadge tone={statusTone(o.status)}>{o.status}</StatusBadge>
                   </td>
-                  <td className="px-6 py-3.5 text-ink-200">{o.when}</td>
-                  <td className="px-6 py-3.5 text-right">
+                  <td data-label="When" className="px-6 py-3.5 text-ink-200">{relativeTime(o.created_at)}</td>
+                  <td data-label="" className="px-6 py-3.5 text-right">
                     <Link
                       href={`/admin/orders/${o.id}`}
                       className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 px-3 text-[11px] text-ink-100 hover:bg-white/5"

@@ -9,3 +9,6 @@ export { StatusBadge, statusTone, type StatusTone } from './StatusBadge';
 export { Banner, type BannerTone } from './Banner';
 export { DataTable, type DataTableColumn } from './DataTable';
 export { Field, TextInput, SelectInput, TextArea } from './FormField';
+export { ShellSkeleton } from './ShellSkeleton';
+export { InShellNotFound } from './InShellNotFound';
+export { DemoBadge } from './DemoBadge';

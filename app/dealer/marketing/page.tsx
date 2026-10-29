@@ -1,5 +1,6 @@
 import { Plus, Send, Eye, MousePointerClick, BarChart3 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { DemoBadge } from '@/components/ui';
 
 export const metadata = { title: 'Marketing — Dealer · mobileDrive' };
 
@@ -57,7 +58,10 @@ export default function DealerMarketingPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="eyebrow">Marketing</div>
+          <div className="flex items-center gap-3">
+            <div className="eyebrow">Marketing</div>
+            <DemoBadge note="Needs a campaigns table — Phase 9 CMS." />
+          </div>
           <h1 className="mt-2 font-display text-display-md font-semibold text-white">
             Campaigns &amp; outreach
           </h1>
@@ -101,7 +105,7 @@ export default function DealerMarketingPage() {
             ))}
           </div>
         </header>
-        <div className="overflow-x-auto">
+        <div className="stack-table overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-y border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
               <tr>
@@ -120,26 +124,26 @@ export default function DealerMarketingPage() {
                 const openRateRow = c.sent > 0 ? (c.opens / c.sent) * 100 : 0;
                 return (
                   <tr key={c.id} className="hover:bg-white/[0.02]">
-                    <td className="px-6 py-3.5 font-medium text-white">{c.name}</td>
-                    <td className="px-6 py-3.5 text-ink-100">{c.channel}</td>
-                    <td className="px-6 py-3.5">
+                    <td data-label="Campaign" className="px-6 py-3.5 font-medium text-white">{c.name}</td>
+                    <td data-label="Channel" className="px-6 py-3.5 text-ink-100">{c.channel}</td>
+                    <td data-label="Status" className="px-6 py-3.5">
                       <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + statusColor(c.status)}>
                         {c.status}
                       </span>
                     </td>
-                    <td className="px-6 py-3.5 text-ink-100 tabular-nums">
+                    <td data-label="Audience" className="px-6 py-3.5 text-ink-100 tabular-nums">
                       {c.audience.toLocaleString()}
                     </td>
-                    <td className="px-6 py-3.5 text-ink-100 tabular-nums">
+                    <td data-label="Opens" className="px-6 py-3.5 text-ink-100 tabular-nums">
                       {c.sent > 0 ? `${c.opens.toLocaleString()} (${openRateRow.toFixed(0)}%)` : '—'}
                     </td>
-                    <td className="px-6 py-3.5 text-ink-100 tabular-nums">
+                    <td data-label="Clicks" className="px-6 py-3.5 text-ink-100 tabular-nums">
                       {c.sent > 0 ? c.clicks.toLocaleString() : '—'}
                     </td>
-                    <td className="px-6 py-3.5 font-medium text-white tabular-nums">
+                    <td data-label="Attributed" className="px-6 py-3.5 font-medium text-white tabular-nums">
                       {c.attributed > 0 ? formatPrice(c.attributed) : '—'}
                     </td>
-                    <td className="px-6 py-3.5 text-ink-200">{c.endsAt}</td>
+                    <td data-label="Ends" className="px-6 py-3.5 text-ink-200">{c.endsAt}</td>
                   </tr>
                 );
               })}

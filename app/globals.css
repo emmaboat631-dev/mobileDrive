@@ -5,10 +5,17 @@
 :root {
   color-scheme: dark;
 
-  /* Semantic surfaces — ink palette, renamed by role. */
-  --surface-base: #07080A;
+  /* mobileDrive brand palette — restrained, premium, automotive. */
+  --brand-obsidian:  #07080A;  /* near-black backdrop */
+  --brand-graphite:  #121418;  /* deep graphite surfaces */
+  --brand-silver:    #C7CBD1;  /* metallic silver — body copy on dark */
+  --brand-chrome:    #EEF0F3;  /* chrome white — headings, primary ink */
+  --brand-accent:    #FFFFFF;  /* clean white primary button */
+
+  /* Semantic surfaces — map to brand tokens. */
+  --surface-base: var(--brand-obsidian);
   --surface-raised: #0C0E12;
-  --surface-overlay: #121418;
+  --surface-overlay: var(--brand-graphite);
   --surface-sunken: #050507;
 
   /* Strokes — hairline for grouping, divider for separation, strong for focus. */
@@ -206,5 +213,54 @@ canvas {
   }
   @media (max-width: 1023px) {
     .table-scroll::after { opacity: 1; }
+  }
+
+  /*
+   * Stacked table — opt-in utility that turns a wide operational table into a
+   * card list on phones (<640px). Each td must carry data-label="Column name"
+   * so the header shows above the value. On desktop the table stays as a
+   * normal <table>.
+   */
+  @media (max-width: 639px) {
+    .stack-table {
+      border: 0 !important;
+      background: transparent !important;
+      overflow: visible !important;
+    }
+    .stack-table table,
+    .stack-table thead,
+    .stack-table tbody,
+    .stack-table tr,
+    .stack-table td,
+    .stack-table th {
+      display: block;
+      width: 100%;
+    }
+    .stack-table thead { display: none; }
+    .stack-table tr {
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      background: rgba(12, 14, 18, 0.6);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .stack-table td {
+      padding: 8px 0;
+      border: 0;
+      display: grid;
+      grid-template-columns: minmax(80px, 90px) 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .stack-table td::before {
+      content: attr(data-label);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(199, 203, 209, 0.6);
+    }
+    .stack-table td[data-label=""]::before { display: none; }
+    .stack-table td[data-label=""] { grid-template-columns: 1fr; }
   }
 }

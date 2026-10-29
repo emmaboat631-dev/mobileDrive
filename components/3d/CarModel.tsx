@@ -262,6 +262,91 @@ export function CarModel({
       <Wheel position={[-p.wheelbase, p.rideHeight,  p.trackHalf]} style={wheelStyle} radius={p.wheelRadius} width={p.tireWidth} />
       <Wheel position={[-p.wheelbase, p.rideHeight, -p.trackHalf]} style={wheelStyle} radius={p.wheelRadius} width={p.tireWidth} />
 
+      {/* ---------- Added detail passes (purely additive — don't change silhouette) ---------- */}
+
+      {/* Side mirrors — small aero caps at the front of each window */}
+      <mesh position={[windshieldX - 0.1, greenhouseY + windowShade * 0.1, (p.width - 0.1) / 2]} castShadow>
+        <boxGeometry args={[0.18, 0.1, 0.14]} />
+        <primitive object={bodyMaterial} attach="material" />
+      </mesh>
+      <mesh position={[windshieldX - 0.1, greenhouseY + windowShade * 0.1, -(p.width - 0.1) / 2]} castShadow>
+        <boxGeometry args={[0.18, 0.1, 0.14]} />
+        <primitive object={bodyMaterial} attach="material" />
+      </mesh>
+
+      {/* Front grille — 5 horizontal slats across the lower bumper */}
+      {Array.from({ length: 5 }).map((_, i) => (
+        <mesh
+          key={`grille-${i}`}
+          position={[noseX + 0.05, p.rideHeight - 0.03 + i * 0.06, 0]}
+        >
+          <boxGeometry args={[0.03, 0.025, p.width - 0.5]} />
+          <primitive object={trimMaterial} attach="material" />
+        </mesh>
+      ))}
+
+      {/* Headlight glass covers — slightly ahead of the emissive housing */}
+      <mesh position={[noseX + 0.07, headlightY, (p.width - 0.6) / 2]}>
+        <boxGeometry args={[0.03, 0.14, 0.46]} />
+        <primitive object={glassMaterial} attach="material" />
+      </mesh>
+      <mesh position={[noseX + 0.07, headlightY, -(p.width - 0.6) / 2]}>
+        <boxGeometry args={[0.03, 0.14, 0.46]} />
+        <primitive object={glassMaterial} attach="material" />
+      </mesh>
+
+      {/* Rear diffuser — three vertical ribs under the rear bumper */}
+      {[-0.25, 0, 0.25].map((z) => (
+        <mesh key={`diff-${z}`} position={[tailX - 0.06, p.rideHeight - 0.02, z]}>
+          <boxGeometry args={[0.08, 0.14, 0.06]} />
+          <primitive object={trimMaterial} attach="material" />
+        </mesh>
+      ))}
+
+      {/* Exhaust tips — twin dark cylinders flanking the rear */}
+      <mesh
+        position={[tailX - 0.12, p.rideHeight - 0.02, (p.width - 0.8) / 2]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <cylinderGeometry args={[0.055, 0.055, 0.1, 16]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+      <mesh
+        position={[tailX - 0.12, p.rideHeight - 0.02, -(p.width - 0.8) / 2]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <cylinderGeometry args={[0.055, 0.055, 0.1, 16]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+
+      {/* Door seam line — thin dark strip running along both sides at belt height */}
+      <mesh position={[0, bodyY + p.bodyHeight / 2 - 0.02, p.width / 2 - 0.002]}>
+        <boxGeometry args={[p.length - 0.6, 0.025, 0.004]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+      <mesh position={[0, bodyY + p.bodyHeight / 2 - 0.02, -(p.width / 2 - 0.002)]}>
+        <boxGeometry args={[p.length - 0.6, 0.025, 0.004]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+
+      {/* A-pillar + C-pillar accents — slim upright darker members at window corners */}
+      <mesh position={[windshieldX - 0.08, greenhouseY, p.width / 2 - 0.12]} rotation={[0, 0, -0.62]}>
+        <boxGeometry args={[0.08, p.cabinHeight * 0.9, 0.06]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+      <mesh position={[windshieldX - 0.08, greenhouseY, -(p.width / 2 - 0.12)]} rotation={[0, 0, -0.62]}>
+        <boxGeometry args={[0.08, p.cabinHeight * 0.9, 0.06]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+      <mesh position={[rearWindowX + 0.08, greenhouseY, p.width / 2 - 0.12]} rotation={[0, 0, 0.5]}>
+        <boxGeometry args={[0.08, p.cabinHeight * 0.9, 0.06]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+      <mesh position={[rearWindowX + 0.08, greenhouseY, -(p.width / 2 - 0.12)]} rotation={[0, 0, 0.5]}>
+        <boxGeometry args={[0.08, p.cabinHeight * 0.9, 0.06]} />
+        <primitive object={trimMaterial} attach="material" />
+      </mesh>
+
       {/* Headlight glow projection on ground */}
       {headlightsOn && (
         <mesh position={[noseX + 1.4, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>

@@ -1,18 +1,19 @@
 import Link from 'next/link';
 import { Edit3, Trash2, Plus, Search, Copy } from 'lucide-react';
-import { listVehicles, getHeroColor } from '@/lib/vehicles/data';
+import { getHeroColor } from '@/lib/vehicles/data';
+import { fetchVehicles } from '@/lib/admin/queries';
 import { formatPrice } from '@/lib/utils/format';
 import type { Vehicle } from '@/types/vehicle';
 import { Banner, StatusBadge, DataTable, type DataTableColumn } from '@/components/ui';
 
 export const metadata = { title: 'Vehicles — Admin · mobileDrive' };
 
-export default function AdminVehiclesPage({
+export default async function AdminVehiclesPage({
   searchParams,
 }: {
   searchParams: { created?: string; mock?: string };
 }) {
-  const vehicles = listVehicles();
+  const vehicles = await fetchVehicles();
   const createdId = searchParams.created;
   const mock = searchParams.mock === '1';
 

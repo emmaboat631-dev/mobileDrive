@@ -1,16 +1,11 @@
 import { ArrowUpRight, Download } from 'lucide-react';
-import { formatPrice } from '@/lib/utils/format';
+import { formatPrice, relativeTime } from '@/lib/utils/format';
+import { EmptyState, DemoBadge } from '@/components/ui';
+import { fetchOrders } from '@/lib/admin/queries';
+import { getCurrentUser } from '@/lib/auth/currentUser';
 
 export const metadata = { title: 'Sales — Dealer · mobileDrive' };
-
-const SALES = [
-  { id: 'MD-2026-1038', closed: 'Oct 6', buyer: 'Asiamah Joshua', vehicle: 'Porsche 911 Carrera',  amount: 123700, deposit: 12370, status: 'Production' },
-  { id: 'MD-2026-1037', closed: 'Oct 5', buyer: 'Nia Mensah',      vehicle: 'BMW M4 Competition',  amount: 87700,  deposit: 8770,  status: 'Shipping' },
-  { id: 'MD-2026-1034', closed: 'Oct 4', buyer: 'Yaw Ampah',       vehicle: 'Mercedes-AMG GT',     amount: 142800, deposit: 14280, status: 'Production' },
-  { id: 'MD-2026-1033', closed: 'Oct 3', buyer: 'Serwaa Appiah',   vehicle: 'Range Rover Sport',   amount: 112400, deposit: 11240, status: 'Shipping' },
-  { id: 'MD-2026-1032', closed: 'Oct 1', buyer: 'Kwesi Darko',     vehicle: 'BMW M4 Competition',  amount: 94300,  deposit: 9430,  status: 'Delivered' },
-  { id: 'MD-2026-1036', closed: 'Sep 30', buyer: 'Kojo Boateng',   vehicle: 'Tesla Model S',       amount: 108300, deposit: 10830, status: 'Delivered' },
-];
+export const dynamic = 'force-dynamic';
 
 const DAILY = [
   { day: 'Mon', value: 94000 },
@@ -22,15 +17,24 @@ const DAILY = [
   { day: 'Sun', value: 142000 },
 ];
 
-const statusTone: Record<string, string> = {
-  Production: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
-  Shipping:   'bg-sky-400/15 text-sky-300 border-sky-400/30',
-  Delivered:  'bg-emerald-400/15 text-emerald-400 border-emerald-400/30',
+const dealStatusTone: Record<string, string> = {
+  pending:    'bg-ink-400/15 text-ink-200 border-white/15',
+  paid:       'bg-emerald-400/15 text-emerald-400 border-emerald-400/30',
+  production: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
+  quality:    'bg-amber-400/15 text-amber-300 border-amber-400/30',
+  shipping:   'bg-sky-400/15 text-sky-300 border-sky-400/30',
+  delivered:  'bg-emerald-400/15 text-emerald-400 border-emerald-400/30',
+  cancelled:  'bg-red-400/15 text-red-300 border-red-400/30',
 };
 
-export default function DealerSalesPage() {
-  const total = SALES.reduce((s, r) => s + r.amount, 0);
-  const deposits = SALES.reduce((s, r) => s + r.deposit, 0);
+export default async function DealerSalesPage() {
+  const user = await getCurrentUser();
+  // Admins see every order; a dealer-role user is filtered to their showroom.
+  const dealerFilter = user?.role === 'dealer' ? user.dealerId ?? undefined : undefined;
+  const SALES = await fetchOrders(50, dealerFilter);
+
+  const total = SALES.reduce((s, r) => s + r.grand_total, 0);
+  const deposits = Math.round(total * 0.1);
   const max = Math.max(...DAILY.map((d) => d.value));
 
   // Chart layout
@@ -54,7 +58,7 @@ export default function DealerSalesPage() {
             Closed deals
           </h1>
           <p className="mt-2 text-sm text-ink-200">
-            {SALES.length} deals this period · {formatPrice(total)} booked · {formatPrice(deposits)} in deposits
+            {SALES.length} deals · {formatPrice(total)} booked · {formatPrice(deposits)} est. deposits
           </p>
         </div>
         <button type="button" className="btn-secondary">
@@ -65,17 +69,17 @@ export default function DealerSalesPage() {
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-4">
-        <Kpi label="Revenue (7d)"      value={formatPrice(total)} delta="+9.1%" good />
+        <Kpi label="Revenue"           value={formatPrice(total)} />
         <Kpi label="Deposits received" value={formatPrice(deposits)} />
-        <Kpi label="Average order"     value={formatPrice(Math.round(total / SALES.length))} />
-        <Kpi label="Conversion"        value="32%" hint="Test drive → order" />
+        <Kpi label="Average order"     value={formatPrice(SALES.length > 0 ? Math.round(total / SALES.length) : 0)} />
+        <Kpi label="Conversion"        value="—" hint="Needs analytics wiring" />
       </div>
 
-      {/* Trend chart */}
+      {/* Trend chart — still synthetic until we aggregate orders by day */}
       <section className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-6">
         <div className="flex items-end justify-between">
           <div>
-            <div className="eyebrow">Trend</div>
+            <div className="eyebrow flex items-center gap-2">Trend <DemoBadge note="chart values are illustrative" /></div>
             <h2 className="mt-1 font-display text-xl font-semibold text-white">Daily revenue</h2>
           </div>
           <div className="flex rounded-full border border-white/10 p-0.5">
@@ -134,7 +138,7 @@ export default function DealerSalesPage() {
             <h2 className="mt-1 font-display text-xl font-semibold text-white">Closed in this period</h2>
           </div>
         </header>
-        <div className="overflow-x-auto">
+        <div className="stack-table overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-y border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
               <tr>
@@ -149,24 +153,27 @@ export default function DealerSalesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
+              {SALES.length === 0 && (
+                <tr><td colSpan={8} className="px-6 py-10 text-center text-sm text-ink-200">No closed deals at this showroom yet.</td></tr>
+              )}
               {SALES.map((s) => (
                 <tr key={s.id} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-3.5 font-medium text-white">{s.id}</td>
-                  <td className="px-6 py-3.5 text-ink-200">{s.closed}</td>
-                  <td className="px-6 py-3.5 text-ink-100">{s.buyer}</td>
-                  <td className="px-6 py-3.5 text-ink-100">{s.vehicle}</td>
-                  <td className="px-6 py-3.5 text-ink-200 tabular-nums">
-                    {formatPrice(s.deposit)}
+                  <td data-label="Order" className="px-6 py-3.5 font-medium text-white">{s.id.slice(0, 8).toUpperCase()}</td>
+                  <td data-label="Closed" className="px-6 py-3.5 text-ink-200">{relativeTime(s.created_at)}</td>
+                  <td data-label="Customer" className="px-6 py-3.5 text-ink-100">{s.buyer_name ?? s.buyer_email ?? '—'}</td>
+                  <td data-label="Vehicle" className="px-6 py-3.5 text-ink-100">{s.items_summary || '—'}</td>
+                  <td data-label="Deposit" className="px-6 py-3.5 text-ink-200 tabular-nums">
+                    {formatPrice(Math.round(s.grand_total * 0.1))}
                   </td>
-                  <td className="px-6 py-3.5 font-medium text-white tabular-nums">
-                    {formatPrice(s.amount)}
+                  <td data-label="Amount" className="px-6 py-3.5 font-medium text-white tabular-nums">
+                    {formatPrice(s.grand_total)}
                   </td>
-                  <td className="px-6 py-3.5">
-                    <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + statusTone[s.status]}>
+                  <td data-label="Status" className="px-6 py-3.5">
+                    <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + (dealStatusTone[s.status] ?? dealStatusTone.pending)}>
                       {s.status}
                     </span>
                   </td>
-                  <td className="px-6 py-3.5 text-right">
+                  <td data-label="" className="px-6 py-3.5 text-right">
                     <a
                       href={`/admin/orders/${s.id}`}
                       className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 px-3 text-[11px] text-ink-100 hover:bg-white/5"

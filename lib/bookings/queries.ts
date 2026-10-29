@@ -62,7 +62,6 @@ export async function getUserBookings(options?: { onlyUpcoming?: boolean }): Pro
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr || !userData.user) return { ok: true, mode: 'unauthenticated', bookings: [] };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
   let query = db
     .from('test_drive_bookings')
@@ -92,7 +91,6 @@ export async function getUpcomingDealerBookings(days = 14): Promise<BookingsResu
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr || !userData.user) return { ok: true, mode: 'unauthenticated', bookings: [] };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
   // Confirm the caller is dealer or admin so we can render accurate copy if not.

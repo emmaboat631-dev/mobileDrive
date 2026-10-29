@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, Mail, Phone, Search, UserPlus, MessageSquare } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { DemoBadge } from '@/components/ui';
 
 export const metadata = { title: 'Customers — Dealer · mobileDrive' };
 
@@ -62,7 +63,10 @@ export default function DealerCustomersPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="eyebrow">Customers</div>
+          <div className="flex items-center gap-3">
+            <div className="eyebrow">Customers</div>
+            <DemoBadge note="Pipeline stages are illustrative — needs a CRM layer." />
+          </div>
           <h1 className="mt-2 font-display text-display-md font-semibold text-white">
             Your pipeline
           </h1>
@@ -128,7 +132,7 @@ export default function DealerCustomersPage() {
 
       {/* Table */}
       <section className="overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60">
-        <div className="overflow-x-auto">
+        <div className="stack-table overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-white/[0.06] text-left text-[11px] uppercase tracking-wider text-ink-300">
               <tr>
@@ -144,7 +148,7 @@ export default function DealerCustomersPage() {
             <tbody className="divide-y divide-white/[0.04]">
               {CUSTOMERS.map((c) => (
                 <tr key={c.email} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-3.5">
+                  <td data-label="Customer" className="px-6 py-3.5">
                     <div className="flex items-center gap-3">
                       <div
                         className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-white"
@@ -158,18 +162,18 @@ export default function DealerCustomersPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-3.5">
+                  <td data-label="Stage" className="px-6 py-3.5">
                     <span className={'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' + stageColor(c.stage)}>
                       {c.stage}
                     </span>
                   </td>
-                  <td className="px-6 py-3.5 text-ink-100">{c.vehicle}</td>
-                  <td className="px-6 py-3.5 font-medium text-white tabular-nums">
+                  <td data-label="Vehicle" className="px-6 py-3.5 text-ink-100">{c.vehicle}</td>
+                  <td data-label="Deal value" className="px-6 py-3.5 font-medium text-white tabular-nums">
                     {c.value > 0 ? formatPrice(c.value) : <span className="text-ink-300">—</span>}
                   </td>
-                  <td className="px-6 py-3.5 text-ink-200">{c.lastContact}</td>
-                  <td className="px-6 py-3.5 text-ink-100">{c.nextAction}</td>
-                  <td className="px-6 py-3.5 text-right">
+                  <td data-label="Last contact" className="px-6 py-3.5 text-ink-200">{c.lastContact}</td>
+                  <td data-label="Next action" className="px-6 py-3.5 text-ink-100">{c.nextAction}</td>
+                  <td data-label="" className="px-6 py-3.5 text-right">
                     <div className="inline-flex gap-1">
                       <a
                         href={`tel:${c.phone}`}

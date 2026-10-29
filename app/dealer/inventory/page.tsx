@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { Plus, Search, ArrowUpRight } from 'lucide-react';
-import { listVehicles, getHeroColor } from '@/lib/vehicles/data';
+import { getHeroColor } from '@/lib/vehicles/data';
+import { fetchVehicles } from '@/lib/admin/queries';
 import { formatPrice } from '@/lib/utils/format';
 
 export const metadata = { title: 'Inventory — Dealer · mobileDrive' };
+export const dynamic = 'force-dynamic';
 
+// Showroom-level stock is not yet tracked in the schema; keep a static sample so
+// the UI shows plausible on-hand/reserved figures until a `stock` table lands.
 const STOCK_LEVELS: Record<string, { onHand: number; reserved: number }> = {
   'm4-competition':     { onHand: 4, reserved: 1 },
   'porsche-911':        { onHand: 2, reserved: 1 },
@@ -14,8 +18,8 @@ const STOCK_LEVELS: Record<string, { onHand: number; reserved: number }> = {
   'range-rover-sport':  { onHand: 6, reserved: 1 },
 };
 
-export default function DealerInventoryPage() {
-  const vehicles = listVehicles();
+export default async function DealerInventoryPage() {
+  const vehicles = await fetchVehicles();
   const totalOnHand = vehicles.reduce((s, v) => s + (STOCK_LEVELS[v.id]?.onHand ?? 0), 0);
 
   return (

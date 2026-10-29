@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { listVehicles } from '@/lib/vehicles/data';
+import { listVehiclesWithHeroes } from '@/lib/vehicles/server-data';
 import { VehicleCard } from '@/components/vehicles/VehicleCard';
 import { ArrowRight } from 'lucide-react';
 
@@ -7,8 +7,13 @@ import { ArrowRight } from 'lucide-react';
  * Three editorially-chosen vehicles with numeric index chrome. The composition
  * is intentionally asymmetric to avoid a flat four-up card grid.
  */
-export function FeaturedRail() {
-  const picks = listVehicles().slice(0, 3);
+const FEATURED_IDS = ['range-rover-sport', 'ford-mustang', 'toyota-land-cruiser'];
+
+export async function FeaturedRail() {
+  const all = await listVehiclesWithHeroes();
+  const picks = FEATURED_IDS
+    .map((id) => all.find((v) => v.id === id))
+    .filter((v): v is NonNullable<typeof v> => Boolean(v));
 
   return (
     <section className="container-page py-20">
@@ -16,7 +21,7 @@ export function FeaturedRail() {
         <div>
           <div className="eyebrow mb-2">The editorial</div>
           <h2 className="font-display text-display-md font-semibold text-white">
-            Three vehicles<br className="hidden md:block" /> worth your attention.
+            Three vehicles<br className="hidden md:block" /> worth your attention
           </h2>
         </div>
         <Link

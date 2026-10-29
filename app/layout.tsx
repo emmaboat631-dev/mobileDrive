@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { MotionProvider } from '@/components/providers/MotionProvider';
+import { ToastViewport } from '@/components/ui/ToastViewport';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -18,10 +19,35 @@ const display = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'mobileDrive — Configure. Experience. Drive.',
+  title: {
+    default: 'mobileDrive — Configure. Experience. Drive.',
+    template: '%s — mobileDrive',
+  },
   description:
     'A premium interactive 3D automotive marketplace. Explore, configure and experience your next vehicle.',
   metadataBase: new URL('https://mobiledrive.local'),
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    // iOS strictly needs a PNG at /apple-touch-icon.png for add-to-home-screen
+    // to show the brand mark instead of a generated letter.
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  openGraph: {
+    title: 'mobileDrive — Configure. Experience. Drive.',
+    description: 'A premium interactive 3D automotive marketplace.',
+    siteName: 'mobileDrive',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'mobileDrive',
+    description: 'A premium interactive 3D automotive marketplace.',
+  },
 };
 
 export const viewport: Viewport = {
@@ -48,6 +74,7 @@ export default function RootLayout({
           <Navbar />
           <main id="main-content">{children}</main>
           <Footer />
+          <ToastViewport />
         </MotionProvider>
       </body>
     </html>

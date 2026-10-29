@@ -1,9 +1,101 @@
 import Link from 'next/link';
 import { Save, LogOut, ShieldCheck, Download, Trash2 } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { signOut, updateProfile } from '@/lib/auth/actions';
+import { getCurrentUser } from '@/lib/auth/currentUser';
+import { getServerSupabase } from '@/lib/supabase/server';
 
 export const metadata = { title: 'Settings — Account · mobileDrive' };
+export const dynamic = 'force-dynamic';
 
-export default function AccountSettingsPage() {
+async function saveProfile(formData: FormData) {
+  'use server';
+  const result = await updateProfile(formData);
+  const q = result.ok ? '?saved=1' : `?error=${encodeURIComponent(result.message)}`;
+  redirect(`/account/settings${q}`);
+}
+
+const REGION_OPTIONS = ['GH — Ghana', 'US — United States', 'EU — Europe'];
+
+interface AddressJson {
+  street?: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+}
+
+interface NotificationPrefsJson {
+  orders?: boolean;
+  builds?: boolean;
+  offers?: boolean;
+  dealer?: boolean;
+  sms?: boolean;
+}
+
+interface ProfileExtras {
+  phone: string | null;
+  region: string | null;
+  address: AddressJson | null;
+  prefs: NotificationPrefsJson;
+}
+
+async function fetchProfileExtras(userId: string): Promise<ProfileExtras> {
+  const supabase = getServerSupabase();
+  const fallback: ProfileExtras = {
+    phone: null,
+    region: null,
+    address: null,
+    prefs: { orders: true, builds: false, offers: true, dealer: true, sms: true },
+  };
+  if (!supabase) return fallback;
+  const db = supabase as unknown as {
+    from: (t: string) => {
+      select: (c: string) => {
+        eq: (k: string, v: string) => {
+          maybeSingle: () => Promise<{
+            data: {
+              phone: string | null;
+              region: string | null;
+              default_delivery_address: AddressJson | null;
+              notification_prefs: NotificationPrefsJson | null;
+            } | null;
+          }>;
+        };
+      };
+    };
+  };
+  const { data } = await db
+    .from('profiles')
+    .select('phone, region, default_delivery_address, notification_prefs')
+    .eq('id', userId)
+    .maybeSingle();
+  if (!data) return fallback;
+  return {
+    phone: data.phone,
+    region: data.region,
+    address: data.default_delivery_address,
+    prefs: { ...fallback.prefs, ...(data.notification_prefs ?? {}) },
+  };
+}
+
+export default async function AccountSettingsPage({
+  searchParams,
+}: {
+  searchParams: { saved?: string; error?: string };
+}) {
+  const user = await getCurrentUser();
+  const extras: ProfileExtras = user
+    ? await fetchProfileExtras(user.id)
+    : { phone: null, region: null, address: null, prefs: { orders: true, builds: false, offers: true, dealer: true, sms: true } };
+
+  const [firstName = '', ...rest] = (user?.fullName ?? '').trim().split(/\s+/);
+  const lastName = rest.join(' ');
+  const regionDefault = extras.region
+    ? REGION_OPTIONS.find((o) => o.startsWith(extras.region as string)) ?? REGION_OPTIONS[0]
+    : REGION_OPTIONS[0];
+  const address = extras.address ?? {};
+  const prefs = extras.prefs;
+
   return (
     <div className="space-y-6">
       <header>
@@ -13,7 +105,18 @@ export default function AccountSettingsPage() {
         </h1>
       </header>
 
-      <form className="space-y-6">
+      {searchParams.saved && (
+        <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+          Profile updated.
+        </div>
+      )}
+      {searchParams.error && (
+        <div className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+          Couldn&apos;t save: {searchParams.error}
+        </div>
+      )}
+
+      <form action={saveProfile} className="space-y-6">
         {/* Personal */}
         <Section
           title="Personal information"
@@ -24,7 +127,7 @@ export default function AccountSettingsPage() {
               className="grid h-16 w-16 shrink-0 place-items-center rounded-full font-display text-xl font-semibold text-white"
               style={{ background: 'linear-gradient(135deg, #A078FF, #FF78A0)' }}
             >
-              A
+              {user?.initials ?? 'U'}
             </div>
             <div className="flex gap-2">
               <button type="button" className="btn-secondary text-xs">Upload photo</button>
@@ -33,34 +136,34 @@ export default function AccountSettingsPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field name="first_name" label="First name" defaultValue="Asiamah" />
-            <Field name="last_name"  label="Last name"  defaultValue="Joshua" />
+            <Field name="first_name" label="First name" defaultValue={firstName} />
+            <Field name="last_name"  label="Last name"  defaultValue={lastName} />
           </div>
-          <Field type="email" name="email" label="Email" defaultValue="asiamah@mobiledrive.app" />
+          <Field type="email" name="email" label="Email" defaultValue={user?.email ?? ''} readOnly />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field name="phone"  label="Phone"  defaultValue="+233 55 123 4567" />
-            <Select name="region" label="Region" options={['GH — Ghana', 'US — United States', 'EU — Europe']} />
+            <Field name="phone"  label="Phone"  defaultValue={extras.phone ?? ''} />
+            <Select name="region" label="Region" defaultValue={regionDefault} options={REGION_OPTIONS} />
           </div>
         </Section>
 
         {/* Delivery defaults */}
         <Section title="Default delivery address" subtitle="Used to pre-fill checkout.">
-          <Field name="street"      label="Street address" defaultValue="12 Independence Ave" />
+          <Field name="street"      label="Street address" defaultValue={address.street ?? ''} />
           <div className="grid gap-4 sm:grid-cols-3">
-            <Field name="city"        label="City"        defaultValue="Accra" />
-            <Field name="region_city" label="Region"      defaultValue="Greater Accra" />
-            <Field name="postal_code" label="Postal code" defaultValue="GA-123-4567" />
+            <Field name="city"        label="City"        defaultValue={address.city ?? ''} />
+            <Field name="region_city" label="Region"      defaultValue={address.region ?? ''} />
+            <Field name="postal_code" label="Postal code" defaultValue={address.postalCode ?? ''} />
           </div>
         </Section>
 
         {/* Notifications */}
         <Section title="Notifications" subtitle="How we reach you about builds, orders and test drives.">
           <div className="space-y-3 text-sm">
-            <Toggle name="n_orders"  label="Order updates (email)"      defaultOn hint="Production, shipping and delivery" />
-            <Toggle name="n_builds"  label="Saved-build reminders"      hint="If you leave a build for more than a week" />
-            <Toggle name="n_offers"  label="Launches &amp; promotions"  defaultOn />
-            <Toggle name="n_dealer"  label="Dealer messages"            defaultOn />
-            <Toggle name="n_sms"     label="SMS test-drive reminders"   defaultOn />
+            <Toggle name="n_orders"  label="Order updates (email)"      defaultOn={prefs.orders} hint="Production, shipping and delivery" />
+            <Toggle name="n_builds"  label="Saved-build reminders"      defaultOn={prefs.builds} hint="If you leave a build for more than a week" />
+            <Toggle name="n_offers"  label="Launches &amp; promotions"  defaultOn={prefs.offers} />
+            <Toggle name="n_dealer"  label="Dealer messages"            defaultOn={prefs.dealer} />
+            <Toggle name="n_sms"     label="SMS test-drive reminders"   defaultOn={prefs.sms} />
           </div>
         </Section>
 
@@ -117,10 +220,7 @@ export default function AccountSettingsPage() {
         </Section>
 
         <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] pt-5">
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 text-sm text-ink-100 hover:text-white"
-          >
+          <button type="submit" formAction={signOut} className="inline-flex items-center gap-2 text-sm text-ink-100 hover:text-white">
             <LogOut className="h-4 w-4" />
             Sign out
           </button>
@@ -158,9 +258,9 @@ function Section({
 }
 
 function Field({
-  name, label, defaultValue, type,
+  name, label, defaultValue, type, readOnly,
 }: {
-  name: string; label: string; defaultValue?: string; type?: string;
+  name: string; label: string; defaultValue?: string; type?: string; readOnly?: boolean;
 }) {
   return (
     <label className="block">
@@ -169,22 +269,24 @@ function Field({
         name={name}
         type={type ?? 'text'}
         defaultValue={defaultValue}
-        className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-ink-700 px-4 text-sm text-white placeholder:text-ink-300 focus:border-white/30 focus:outline-none"
+        readOnly={readOnly}
+        className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-ink-700 px-4 text-sm text-white placeholder:text-ink-300 focus:border-white/30 focus:outline-none disabled:opacity-60 read-only:opacity-60 read-only:cursor-not-allowed"
       />
     </label>
   );
 }
 
 function Select({
-  name, label, options,
+  name, label, options, defaultValue,
 }: {
-  name: string; label: string; options: string[];
+  name: string; label: string; options: string[]; defaultValue?: string;
 }) {
   return (
     <label className="block">
       <span className="eyebrow block">{label}</span>
       <select
         name={name}
+        defaultValue={defaultValue}
         className="mt-2 h-11 w-full appearance-none rounded-xl border border-white/10 bg-ink-700 px-4 text-sm text-white focus:border-white/30 focus:outline-none"
       >
         {options.map((o) => (

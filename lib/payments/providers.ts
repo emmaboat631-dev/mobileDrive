@@ -8,25 +8,19 @@
 
 export type PaymentMethodId =
   | 'card'
-  | 'mtn-momo'
-  | 'telecel-cash'
-  | 'airteltigo-money'
   | 'paystack';
 
 export interface PaymentMethod {
   id: PaymentMethodId;
   name: string;
   subtitle: string;
-  provider: 'stripe' | 'paystack' | 'mobile-money';
+  provider: 'stripe' | 'paystack';
   availableIn: Array<'US' | 'GH' | 'EU'>;
 }
 
 export const PAYMENT_METHODS: PaymentMethod[] = [
-  { id: 'card',             name: 'Card',          subtitle: 'Visa, Mastercard, Amex', provider: 'stripe',        availableIn: ['US', 'GH', 'EU'] },
-  { id: 'mtn-momo',         name: 'MTN MoMo',      subtitle: 'Mobile money',           provider: 'mobile-money',  availableIn: ['GH'] },
-  { id: 'telecel-cash',     name: 'Telecel Cash',  subtitle: 'Mobile money',           provider: 'mobile-money',  availableIn: ['GH'] },
-  { id: 'airteltigo-money', name: 'AirtelTigo',    subtitle: 'Mobile money',           provider: 'mobile-money',  availableIn: ['GH'] },
-  { id: 'paystack',         name: 'Paystack',      subtitle: 'Bank transfer',          provider: 'paystack',      availableIn: ['GH'] },
+  { id: 'paystack', name: 'Paystack', subtitle: 'Card, mobile money, bank transfer', provider: 'paystack', availableIn: ['GH'] },
+  { id: 'card',     name: 'Card',     subtitle: 'Direct Stripe — coming soon',       provider: 'stripe',   availableIn: ['US', 'GH', 'EU'] },
 ];
 
 export interface PaymentIntent {

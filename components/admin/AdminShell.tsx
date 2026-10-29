@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Car, Package, Users, Receipt, Settings, BarChart3, ShieldCheck,
+  LayoutDashboard, Car, Package, Users, Receipt, Settings, BarChart3, ShieldCheck, Store,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
@@ -12,6 +12,7 @@ const NAV = [
   { href: '/admin/vehicles',  label: 'Vehicles',  icon: Car },
   { href: '/admin/orders',    label: 'Orders',    icon: Package },
   { href: '/admin/customers', label: 'Customers', icon: Users },
+  { href: '/admin/dealers',   label: 'Showrooms', icon: Store },
   { href: '/admin/payments',  label: 'Payments',  icon: Receipt },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/settings',  label: 'Settings',  icon: Settings },

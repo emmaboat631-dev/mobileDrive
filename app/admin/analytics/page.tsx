@@ -1,16 +1,10 @@
 import { TrendingUp, TrendingDown, Download } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { DemoBadge } from '@/components/ui';
+import { fetchAnalyticsSnapshot } from '@/lib/admin/analytics';
 
 export const metadata = { title: 'Analytics — Admin · mobileDrive' };
-
-// 30-day daily revenue (in thousands USD) — mock dataset
-const DAILY_REVENUE = [
-  120, 95, 138, 162, 110, 184, 220,  // week 1
-  142, 128, 190, 206, 158, 245, 268, // week 2
-  175, 160, 215, 240, 198, 298, 322, // week 3
-  210, 182, 260, 295, 240, 345, 410, // week 4 (strong finish)
-  318, 290,                           // tail
-];
+export const dynamic = 'force-dynamic';
 
 const CHANNELS = [
   { name: 'Direct website',    value: 48, revenue: 892000 },
@@ -28,14 +22,6 @@ const TOP_VEHICLES = [
   { name: 'Audi RS6 Avant',      units: 3, revenue: 384000 },
 ];
 
-const REGIONS = [
-  { name: 'Ghana',          share: 68, revenue: 1264000 },
-  { name: 'United Kingdom', share: 14, revenue: 260000 },
-  { name: 'Nigeria',        share: 10, revenue: 186000 },
-  { name: 'South Africa',   share: 5,  revenue: 92000 },
-  { name: 'Other',          share: 3,  revenue: 58000 },
-];
-
 const FUNNEL = [
   { label: 'Marketplace visits',       value: 18420, pct: 100 },
   { label: 'Vehicle details',          value: 8740,  pct: 47.5 },
@@ -45,17 +31,22 @@ const FUNNEL = [
   { label: 'Placed order',             value: 128,   pct: 0.7 },
 ];
 
-export default function AnalyticsPage() {
-  const total = DAILY_REVENUE.reduce((s, d) => s + d, 0) * 1000;
-  const avgDaily = total / DAILY_REVENUE.length;
-  const prevPeriod = total * 0.886; // mock comparison
-  const delta = ((total - prevPeriod) / prevPeriod) * 100;
+export default async function AnalyticsPage() {
+  const snapshot = await fetchAnalyticsSnapshot(30);
+  const DAILY_REVENUE = snapshot.dailyRevenue.map((d) => Math.round(d.revenue / 1000));
+  const total = snapshot.revenue;
+  const avgDaily = Math.round(total / Math.max(DAILY_REVENUE.length, 1));
+  const delta = 0;
+  const REGIONS = snapshot.regionBreakdown.map((r) => ({ name: r.region, share: r.share, revenue: r.revenue }));
 
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="eyebrow">Analytics</div>
+          <div className="flex items-center gap-3">
+            <div className="eyebrow">Analytics</div>
+            <DemoBadge note="Needs an analytics processor like PostHog or Plausible." />
+          </div>
           <h1 className="mt-2 font-display text-display-md font-semibold text-white">
             Platform performance
           </h1>
@@ -221,7 +212,7 @@ export default function AnalyticsPage() {
         <section className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-6">
           <div className="eyebrow">Geography</div>
           <h2 className="mt-1 font-display text-xl font-semibold text-white">By region</h2>
-          <div className="mt-5 overflow-hidden rounded-xl border border-white/[0.04]">
+          <div className="stack-table mt-5 overflow-hidden rounded-xl border border-white/[0.04]">
             <table className="w-full text-sm">
               <thead className="bg-ink-700/40 text-left text-[11px] uppercase tracking-wider text-ink-300">
                 <tr>
@@ -233,8 +224,8 @@ export default function AnalyticsPage() {
               <tbody className="divide-y divide-white/[0.04]">
                 {REGIONS.map((r) => (
                   <tr key={r.name}>
-                    <td className="px-4 py-3 text-white">{r.name}</td>
-                    <td className="px-4 py-3 text-ink-200">
+                    <td data-label="Region" className="px-4 py-3 text-white">{r.name}</td>
+                    <td data-label="Share" className="px-4 py-3 text-ink-200">
                       <div className="flex items-center gap-2">
                         <div className="relative h-1.5 w-24 overflow-hidden rounded-full bg-white/[0.05]">
                           <div
@@ -245,7 +236,7 @@ export default function AnalyticsPage() {
                         <span className="tabular-nums">{r.share}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-white tabular-nums">
+                    <td data-label="Revenue" className="px-4 py-3 text-right font-medium text-white tabular-nums">
                       {formatPrice(r.revenue)}
                     </td>
                   </tr>

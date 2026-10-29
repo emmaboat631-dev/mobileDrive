@@ -1,5 +1,6 @@
 import { Save, Clock, MapPin, Phone, Building2, UserPlus, Trash2, CreditCard } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import { DemoBadge } from '@/components/ui';
 
 export const metadata = { title: 'Settings — Dealer · mobileDrive' };
 
@@ -31,7 +32,10 @@ export default function DealerSettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <div className="eyebrow">Settings</div>
+        <div className="flex items-center gap-3">
+          <div className="eyebrow">Settings</div>
+          <DemoBadge note="Hours, team roster and payouts don't persist yet — form submit is a stub." />
+        </div>
         <h1 className="mt-2 font-display text-display-md font-semibold text-white">
           Dealer settings
         </h1>
@@ -62,7 +66,7 @@ export default function DealerSettingsPage() {
 
         {/* Hours */}
         <SectionCard icon={Clock} title="Opening hours" subtitle="Buyers only see test-drive slots within these windows.">
-          <div className="overflow-hidden rounded-xl border border-white/[0.04]">
+          <div className="stack-table overflow-hidden rounded-xl border border-white/[0.04]">
             <table className="w-full text-sm">
               <thead className="bg-ink-700/40 text-left text-[11px] uppercase tracking-wider text-ink-300">
                 <tr>
@@ -75,8 +79,8 @@ export default function DealerSettingsPage() {
               <tbody className="divide-y divide-white/[0.04]">
                 {HOURS.map((h) => (
                   <tr key={h.day}>
-                    <td className="px-4 py-2.5 font-medium text-white">{h.day}</td>
-                    <td className="px-4 py-2.5">
+                    <td data-label="Day" className="px-4 py-2.5 font-medium text-white">{h.day}</td>
+                    <td data-label="Opens" className="px-4 py-2.5">
                       <input
                         type="text"
                         defaultValue={h.open || '—'}
@@ -84,7 +88,7 @@ export default function DealerSettingsPage() {
                         className="h-9 w-28 rounded-lg border border-white/10 bg-ink-700 px-3 text-sm text-white disabled:opacity-50 focus:border-white/30 focus:outline-none"
                       />
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td data-label="Closes" className="px-4 py-2.5">
                       <input
                         type="text"
                         defaultValue={h.close || '—'}
@@ -92,7 +96,7 @@ export default function DealerSettingsPage() {
                         className="h-9 w-28 rounded-lg border border-white/10 bg-ink-700 px-3 text-sm text-white disabled:opacity-50 focus:border-white/30 focus:outline-none"
                       />
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td data-label="Closed" className="px-4 py-2.5">
                       <Toggle name={`closed_${h.day}`} defaultOn={h.closed} />
                     </td>
                   </tr>
@@ -115,7 +119,7 @@ export default function DealerSettingsPage() {
 
         {/* Team */}
         <SectionCard icon={UserPlus} title="Showroom team" subtitle="People reachable from a buyer's order or test-drive page.">
-          <div className="overflow-hidden rounded-xl border border-white/[0.04]">
+          <div className="stack-table overflow-hidden rounded-xl border border-white/[0.04]">
             <table className="w-full text-sm">
               <thead className="bg-ink-700/40 text-left text-[11px] uppercase tracking-wider text-ink-300">
                 <tr>
@@ -128,7 +132,7 @@ export default function DealerSettingsPage() {
               <tbody className="divide-y divide-white/[0.04]">
                 {TEAM.map((m) => (
                   <tr key={m.email}>
-                    <td className="px-4 py-3">
+                    <td data-label="Member" className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div
                           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-white"
@@ -142,13 +146,13 @@ export default function DealerSettingsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Role" className="px-4 py-3">
                       <span className="inline-flex rounded-full border border-white/15 bg-ink-700/60 px-2.5 py-0.5 text-[11px] text-ink-100">
                         {m.role}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-ink-200 tabular-nums">{m.since}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td data-label="Since" className="px-4 py-3 text-ink-200 tabular-nums">{m.since}</td>
+                    <td data-label="" className="px-4 py-3 text-right">
                       <button
                         type="button"
                         aria-label={`Remove ${m.name}`}
@@ -179,7 +183,7 @@ export default function DealerSettingsPage() {
             <Field name="min_payout"   label="Minimum balance"  defaultValue={formatPrice(5000)} />
             <Field name="currency"     label="Currency"        defaultValue="USD" />
           </div>
-          <div className="overflow-hidden rounded-xl border border-white/[0.04]">
+          <div className="stack-table overflow-hidden rounded-xl border border-white/[0.04]">
             <table className="w-full text-sm">
               <thead className="bg-ink-700/40 text-left text-[11px] uppercase tracking-wider text-ink-300">
                 <tr>
@@ -191,11 +195,11 @@ export default function DealerSettingsPage() {
               <tbody className="divide-y divide-white/[0.04]">
                 {PAYOUTS.map((p) => (
                   <tr key={p.date}>
-                    <td className="px-4 py-3 text-ink-200">{p.date}</td>
-                    <td className="px-4 py-3 font-medium text-white tabular-nums">
+                    <td data-label="Date" className="px-4 py-3 text-ink-200">{p.date}</td>
+                    <td data-label="Amount" className="px-4 py-3 font-medium text-white tabular-nums">
                       {formatPrice(p.amount)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Status" className="px-4 py-3">
                       <span
                         className={
                           'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium ' +

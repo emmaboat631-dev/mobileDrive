@@ -1,12 +1,12 @@
-import { listVehicles } from '@/lib/vehicles/data';
+import { listVehiclesWithHeroes } from '@/lib/vehicles/server-data';
 import { MarketplaceClient } from '@/components/vehicles/MarketplaceClient';
 
 export const metadata = {
   title: 'Vehicles — mobileDrive',
 };
 
-export default function VehiclesPage() {
-  const vehicles = listVehicles();
+export default async function VehiclesPage() {
+  const vehicles = await listVehiclesWithHeroes();
 
   return (
     <section className="container-page pb-20 pt-28">

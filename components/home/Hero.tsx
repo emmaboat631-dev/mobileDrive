@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { listVehicles } from '@/lib/vehicles/data';
 import { formatPrice } from '@/lib/utils/format';
+import { Mark } from '@/components/brand/Logo';
+import { ViewerLoading } from '@/components/3d/ViewerLoading';
 
 const CarViewer = dynamic(
   () => import('@/components/3d/CarViewer').then((m) => m.CarViewer),
-  { ssr: false, loading: () => <HeroLoading /> },
+  { ssr: false, loading: () => <ViewerLoading /> },
 );
 
 const ALL = listVehicles();
@@ -18,7 +20,7 @@ const BRAND_COUNT = new Set(ALL.map((v) => v.brand)).size;
 const BODY_COUNT = new Set(ALL.map((v) => v.bodyType)).size;
 const STARTING = ALL.reduce((min, v) => (v.price < min ? v.price : min), Number.POSITIVE_INFINITY);
 
-export function Hero() {
+export function Hero({ featuredImageUrl, featuredCaption }: { featuredImageUrl?: string; featuredCaption?: string } = {}) {
   return (
     <section className="relative isolate overflow-hidden pb-20 pt-28 md:pt-32">
       {/* Backdrop — single warm accent, no multi-gradient slop */}
@@ -41,10 +43,11 @@ export function Hero() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-ink-100"
+              className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.22em] text-ink-200"
             >
-              <Sparkles className="h-3 w-3" />
-              A 3D automotive marketplace
+              <Mark size="sm" />
+              <span className="h-px w-6 bg-white/15" aria-hidden />
+              Interactive showroom
             </motion.div>
 
             <motion.h1
@@ -109,23 +112,43 @@ export function Hero() {
             transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative order-1 h-[46vh] min-h-[320px] w-full lg:order-2 lg:h-[64vh]"
           >
-            <CarViewer
-              bodyHex="#0F2341"
-              bodyFinish="metallic"
-              wheelStyle="performance"
-              silhouette="sports"
-              headlightsOn={false}
-              autoRotate
-              interactive
-              showFullscreen
-              className="h-full w-full"
-            />
+            {featuredImageUrl ? (
+              <div
+                className="relative h-full w-full overflow-hidden rounded-3xl"
+                style={{ background: 'radial-gradient(120% 70% at 50% 35%, #1A1C21 0%, #0E0F13 55%, #07080A 100%)' }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={featuredImageUrl}
+                  alt={featuredCaption ?? 'Featured vehicle'}
+                  className="absolute inset-x-0 bottom-[8%] top-[8%] mx-auto h-[84%] w-full object-contain"
+                />
+                <div
+                  className="pointer-events-none absolute left-1/2 bottom-[12%] h-4 w-[60%] -translate-x-1/2 rounded-[50%] opacity-70 blur-lg"
+                  style={{ background: 'rgba(0,0,0,0.7)' }}
+                  aria-hidden
+                />
+              </div>
+            ) : (
+              <CarViewer
+                bodyHex="#0F2341"
+                bodyFinish="metallic"
+                wheelStyle="performance"
+                silhouette="sports"
+                headlightsOn={false}
+                autoRotate
+                interactive
+                showFullscreen
+                className="h-full w-full"
+              />
+            )}
             {/* Floor fade */}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-900 to-transparent" />
-            {/* Vehicle caption — anchors the stage to real content */}
-            <div className="pointer-events-none absolute left-5 top-5 flex items-center gap-3 text-[11px] tracking-[0.14em] text-ink-200">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.75)]" />
-              LIVE · 911 CARRERA · MIDNIGHT BLUE
+            {/* Vehicle caption — editorial anchor, not a sticker */}
+            <div className="pointer-events-none absolute left-5 top-5 text-[10px] uppercase tracking-[0.22em] text-ink-200">
+              <span className="text-ink-300">Featured</span>
+              <span className="mx-2 text-ink-400">·</span>
+              <span className="text-white">{featuredCaption ?? 'Porsche 911 Carrera · Midnight Blue'}</span>
             </div>
           </motion.div>
         </div>
@@ -143,10 +166,3 @@ function SignalInline({ label, value }: { label: string; value: string }) {
   );
 }
 
-function HeroLoading() {
-  return (
-    <div className="flex h-full w-full items-center justify-center">
-      <div className="text-sm text-ink-200">Preparing your vehicle…</div>
-    </div>
-  );
-}

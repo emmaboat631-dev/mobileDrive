@@ -1,22 +1,20 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Trash2 } from 'lucide-react';
-import { getVehicleById, listVehicles, getHeroColor } from '@/lib/vehicles/data';
+import { getHeroColor } from '@/lib/vehicles/data';
+import { fetchVehicleById } from '@/lib/admin/queries';
 import { formatPrice } from '@/lib/utils/format';
+import { MediaUploader } from '@/components/admin/MediaUploader';
 
 export const dynamic = 'force-dynamic';
 
-export function generateStaticParams() {
-  return listVehicles().map((v) => ({ id: v.id }));
-}
-
-export function generateMetadata({ params }: { params: { id: string } }) {
-  const v = getVehicleById(params.id);
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const v = await fetchVehicleById(params.id);
   return { title: v ? `Edit ${v.brand} ${v.model} — Admin · mobileDrive` : 'Vehicle — Admin · mobileDrive' };
 }
 
-export default function AdminVehicleDetailPage({ params }: { params: { id: string } }) {
-  const vehicle = getVehicleById(params.id);
+export default async function AdminVehicleDetailPage({ params }: { params: { id: string } }) {
+  const vehicle = await fetchVehicleById(params.id);
   if (!vehicle) notFound();
 
   const hero = getHeroColor(vehicle);
@@ -69,23 +67,34 @@ export default function AdminVehicleDetailPage({ params }: { params: { id: strin
         <div className="space-y-6">
           {/* Preview */}
           <section className="overflow-hidden rounded-2xl border border-white/[0.06] bg-ink-800/60">
-            <div
-              className="aspect-[21/9]"
-              style={{
-                background: `radial-gradient(60% 60% at 50% 50%, ${hero.hex}cc, #0A0B0E 85%)`,
-              }}
-            >
-              <svg viewBox="0 0 400 170" className="h-full w-full" aria-hidden>
-                <ellipse cx="200" cy="150" rx="150" ry="8" fill="#000" opacity="0.5" />
-                <path
-                  d="M60,130 L95,80 Q145,55 200,52 Q255,55 305,80 L340,130 Q335,145 315,146 L305,146 Q301,135 288,135 Q275,135 271,146 L129,146 Q125,135 112,135 Q99,135 95,146 L85,146 Q65,145 60,130 Z"
-                  fill={hero.hex}
+            {vehicle.heroImageUrl ? (
+              <div className="aspect-[21/9] bg-ink-900">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={vehicle.heroImageUrl}
+                  alt={`${vehicle.brand} ${vehicle.model}`}
+                  className="h-full w-full object-cover"
                 />
-                <path d="M135,80 Q175,60 200,58 Q225,60 265,80 L255,96 L145,96 Z" fill="#0A0C10" opacity="0.95" />
-                <circle cx="112" cy="140" r="14" fill="#0A0B0E" stroke="#3A3F48" />
-                <circle cx="288" cy="140" r="14" fill="#0A0B0E" stroke="#3A3F48" />
-              </svg>
-            </div>
+              </div>
+            ) : (
+              <div
+                className="aspect-[21/9]"
+                style={{
+                  background: `radial-gradient(60% 60% at 50% 50%, ${hero.hex}cc, #0A0B0E 85%)`,
+                }}
+              >
+                <svg viewBox="0 0 400 170" className="h-full w-full" aria-hidden>
+                  <ellipse cx="200" cy="150" rx="150" ry="8" fill="#000" opacity="0.5" />
+                  <path
+                    d="M60,130 L95,80 Q145,55 200,52 Q255,55 305,80 L340,130 Q335,145 315,146 L305,146 Q301,135 288,135 Q275,135 271,146 L129,146 Q125,135 112,135 Q99,135 95,146 L85,146 Q65,145 60,130 Z"
+                    fill={hero.hex}
+                  />
+                  <path d="M135,80 Q175,60 200,58 Q225,60 265,80 L255,96 L145,96 Z" fill="#0A0C10" opacity="0.95" />
+                  <circle cx="112" cy="140" r="14" fill="#0A0B0E" stroke="#3A3F48" />
+                  <circle cx="288" cy="140" r="14" fill="#0A0B0E" stroke="#3A3F48" />
+                </svg>
+              </div>
+            )}
             <div className="flex items-end justify-between gap-6 border-t border-white/[0.06] p-5">
               <div>
                 <div className="eyebrow">Live preview</div>
@@ -100,6 +109,39 @@ export default function AdminVehicleDetailPage({ params }: { params: { id: strin
               >
                 Open on site →
               </Link>
+            </div>
+          </section>
+
+          {/* Media */}
+          <section className="rounded-2xl border border-white/[0.06] bg-ink-800/60 p-6">
+            <h2 className="font-display text-lg font-semibold text-white">Media</h2>
+            <p className="mt-1 text-xs text-ink-200">
+              Upload a hero shot (used on cards + detail page), extra gallery images, and
+              optionally a .glb 3D model (replaces the procedural fallback in the viewer).
+            </p>
+
+            <div className="mt-5 space-y-6">
+              <MediaUploader
+                vehicleId={vehicle.id}
+                kind="hero"
+                current={vehicle.heroImageUrl}
+                label="Hero image"
+                hint="Shown on vehicle cards, detail page header, and in order emails."
+              />
+              <MediaUploader
+                vehicleId={vehicle.id}
+                kind="gallery"
+                current={vehicle.images}
+                label="Gallery"
+                hint="Extra angles, interior shots, close-ups. Up to 10."
+              />
+              <MediaUploader
+                vehicleId={vehicle.id}
+                kind="model"
+                current={vehicle.modelPath}
+                label="3D model (optional)"
+                hint="Drop a .glb file to replace the procedural car in the 3D viewer."
+              />
             </div>
           </section>
 

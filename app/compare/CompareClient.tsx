@@ -106,12 +106,35 @@ export function CompareClient({ vehicles, defaultIds }: Props) {
             className="flex flex-col overflow-hidden rounded-3xl border border-white/[0.06] bg-ink-800/60"
           >
             <div
-              className="relative h-56"
-              style={{
-                background: `radial-gradient(60% 50% at 50% 50%, ${getHeroColor(v).hex}cc, #0A0B0E 85%)`,
-              }}
+              className="relative h-56 overflow-hidden"
+              style={
+                v.heroImageUrl
+                  ? { background: 'radial-gradient(120% 70% at 50% 35%, #1A1C21 0%, #0E0F13 55%, #07080A 100%)' }
+                  : { background: `radial-gradient(60% 50% at 50% 50%, ${getHeroColor(v).hex}cc, #0A0B0E 85%)` }
+              }
             >
-              <SilhouetteSvg colorHex={getHeroColor(v).hex} />
+              {v.heroImageUrl ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={v.heroImageUrl}
+                    alt={`${v.brand} ${v.model}`}
+                    className="absolute inset-x-0 bottom-[8%] top-[8%] mx-auto h-[84%] w-full object-contain"
+                  />
+                  <div
+                    className="pointer-events-none absolute left-1/2 bottom-[10%] h-3 w-[70%] -translate-x-1/2 rounded-[50%] opacity-70 blur-md"
+                    style={{ background: 'rgba(0,0,0,0.6)' }}
+                    aria-hidden
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-10"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55), transparent)' }}
+                    aria-hidden
+                  />
+                </>
+              ) : (
+                <SilhouetteSvg colorHex={getHeroColor(v).hex} />
+              )}
             </div>
 
             <div className="px-6 py-5">

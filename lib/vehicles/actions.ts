@@ -3,6 +3,9 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getServerSupabase } from '@/lib/supabase/server';
+import { assertSameOrigin } from '@/lib/security/csrf';
+import { logAdminAction } from '@/lib/security/audit';
+import { vehicleSchema, firstZodMessage } from '@/lib/validation/schemas';
 import type { Vehicle } from '@/types/vehicle';
 
 export interface VehicleInput {
@@ -29,50 +32,58 @@ export interface VehicleInput {
 export type VehicleResult = { ok: true; id: string } | { ok: false; message: string };
 
 function readVehicleFromForm(formData: FormData): VehicleInput | { error: string } {
-  const brand = String(formData.get('brand') ?? '').trim();
-  const model = String(formData.get('model') ?? '').trim();
-  const slug = String(formData.get('slug') ?? '').trim().toLowerCase();
-
-  if (!brand || !model) return { error: 'Brand and Model are required.' };
-  if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
-    return { error: 'URL slug must be lowercase letters, numbers and hyphens.' };
-  }
-
-  const price = Number(formData.get('price') ?? 0);
-  const year = Number(formData.get('year') ?? new Date().getFullYear());
-  if (!Number.isFinite(price) || price <= 0) {
-    return { error: 'Base price must be a positive number.' };
-  }
-
   const rangeKmRaw = String(formData.get('range_km') ?? '').trim();
-  const rangeKm = rangeKmRaw === '' || rangeKmRaw === '—' ? null : Number(rangeKmRaw);
-  if (rangeKm !== null && !Number.isFinite(rangeKm)) {
-    return { error: 'Range must be a number or empty.' };
-  }
+  const rangeKm = rangeKmRaw === '' || rangeKmRaw === '—' ? null : rangeKmRaw;
 
-  return {
-    id: slug,
-    brand,
-    model,
-    year,
-    price,
-    currency: String(formData.get('currency') ?? 'USD') as Vehicle['currency'],
-    bodyType: String(formData.get('body_type') ?? 'Coupe') as Vehicle['bodyType'],
-    fuelType: String(formData.get('fuel_type') ?? 'Petrol') as Vehicle['fuelType'],
-    transmission: String(formData.get('transmission') ?? 'Automatic') as Vehicle['transmission'],
-    driveType: String(formData.get('drive_type') ?? 'RWD') as Vehicle['driveType'],
-    horsepower: Number(formData.get('horsepower') ?? 0),
-    acceleration: Number(formData.get('acceleration') ?? 0),
-    topSpeed: Number(formData.get('top_speed') ?? 0),
+  const parsed = vehicleSchema.safeParse({
+    id: String(formData.get('slug') ?? '').trim().toLowerCase(),
+    brand: formData.get('brand'),
+    model: formData.get('model'),
+    year: formData.get('year') ?? new Date().getFullYear(),
+    price: formData.get('price'),
+    currency: formData.get('currency') ?? 'USD',
+    bodyType: formData.get('body_type') ?? 'Coupe',
+    fuelType: formData.get('fuel_type') ?? 'Petrol',
+    transmission: formData.get('transmission') ?? 'Automatic',
+    driveType: formData.get('drive_type') ?? 'RWD',
+    horsepower: formData.get('horsepower') ?? 0,
+    acceleration: formData.get('acceleration') ?? 0,
+    topSpeed: formData.get('top_speed') ?? 0,
     rangeKm,
-    description: String(formData.get('description') ?? '').trim(),
+    description: formData.get('description'),
     features: [],
     modelPath: String(formData.get('model_path') ?? '').trim() || null,
-    heroColorId: String(formData.get('hero_color_id') ?? 'midnight-blue'),
+    heroColorId: formData.get('hero_color_id') ?? 'midnight-blue',
+  });
+  if (!parsed.success) return { error: firstZodMessage(parsed.error) };
+
+  const v = parsed.data;
+  return {
+    id: v.id,
+    brand: v.brand,
+    model: v.model,
+    year: v.year,
+    price: v.price,
+    currency: v.currency as Vehicle['currency'],
+    bodyType: v.bodyType as Vehicle['bodyType'],
+    fuelType: v.fuelType as Vehicle['fuelType'],
+    transmission: v.transmission as Vehicle['transmission'],
+    driveType: v.driveType as Vehicle['driveType'],
+    horsepower: v.horsepower,
+    acceleration: v.acceleration,
+    topSpeed: v.topSpeed,
+    rangeKm: v.rangeKm ?? null,
+    description: v.description,
+    features: v.features,
+    modelPath: v.modelPath ?? null,
+    heroColorId: v.heroColorId,
   };
 }
 
 export async function createVehicle(formData: FormData): Promise<VehicleResult> {
+  const origin = await assertSameOrigin();
+  if (!origin.ok) return { ok: false, message: origin.message };
+
   const parsed = readVehicleFromForm(formData);
   if ('error' in parsed) return { ok: false, message: parsed.error };
   const input = parsed;
@@ -84,7 +95,6 @@ export async function createVehicle(formData: FormData): Promise<VehicleResult> 
     redirect(`/admin/vehicles?created=${encodeURIComponent(input.id)}&mock=1`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
   const { error } = await db.from('vehicles').insert({
     id: input.id,
@@ -119,6 +129,10 @@ export async function createVehicle(formData: FormData): Promise<VehicleResult> 
 }
 
 export async function updateVehicle(id: string, formData: FormData): Promise<VehicleResult> {
+  {
+    const origin = await assertSameOrigin();
+    if (!origin.ok) return { ok: false, message: origin.message };
+  }
   const parsed = readVehicleFromForm(formData);
   if ('error' in parsed) return { ok: false, message: parsed.error };
   const input = parsed;
@@ -130,7 +144,6 @@ export async function updateVehicle(id: string, formData: FormData): Promise<Veh
     return { ok: true, id };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
   const { error } = await db.from('vehicles').update({
     brand: input.brand,
@@ -153,6 +166,14 @@ export async function updateVehicle(id: string, formData: FormData): Promise<Veh
 
   if (error) return { ok: false, message: error.message };
 
+  await logAdminAction({
+    action: 'vehicle.update',
+    entity: 'vehicle',
+    entityId: id,
+    summary: `Updated ${input.brand} ${input.model}`,
+    diff: input,
+  });
+
   revalidatePath('/admin/vehicles');
   revalidatePath(`/admin/vehicles/${id}`);
   revalidatePath(`/vehicles/${id}`);
@@ -160,15 +181,24 @@ export async function updateVehicle(id: string, formData: FormData): Promise<Veh
 }
 
 export async function deleteVehicle(id: string): Promise<VehicleResult> {
+  {
+    const origin = await assertSameOrigin();
+    if (!origin.ok) return { ok: false, message: origin.message };
+  }
   const supabase = getServerSupabase();
   if (!supabase) {
     revalidatePath('/admin/vehicles');
     return { ok: true, id };
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
   const { error } = await db.from('vehicles').delete().eq('id', id);
   if (error) return { ok: false, message: error.message };
+  await logAdminAction({
+    action: 'vehicle.delete',
+    entity: 'vehicle',
+    entityId: id,
+    summary: `Deleted vehicle ${id}`,
+  });
   revalidatePath('/admin/vehicles');
   return { ok: true, id };
 }

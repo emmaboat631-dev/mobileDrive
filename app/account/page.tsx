@@ -1,12 +1,18 @@
 import Link from 'next/link';
-import { Check } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
 import { AccountKpis } from './AccountKpis';
-import { StatusBadge } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
 import { getUserBookings } from '@/lib/bookings/queries';
+import { getCurrentUser } from '@/lib/auth/currentUser';
 import { NextTestDrive, type NextTestDriveProps } from './NextTestDrive';
 
-const TRACKER = ['Order placed', 'In production', 'Quality check', 'Shipping', 'Delivered'];
+export const dynamic = 'force-dynamic';
+
+function timeOfDayGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
 
 async function resolveNextTestDrive(): Promise<NextTestDriveProps> {
   const r = await getUserBookings({ onlyUpcoming: true });
@@ -29,8 +35,12 @@ async function resolveNextTestDrive(): Promise<NextTestDriveProps> {
 }
 
 export default async function AccountOverviewPage() {
-  const currentStep = 1;
-  const nextTestDrive = await resolveNextTestDrive();
+  const [user, nextTestDrive] = await Promise.all([
+    getCurrentUser(),
+    resolveNextTestDrive(),
+  ]);
+  const greeting = timeOfDayGreeting();
+  const name = user?.firstName ?? 'there';
 
   return (
     <div className="space-y-6">
@@ -38,78 +48,20 @@ export default async function AccountOverviewPage() {
       <div>
         <div className="eyebrow">Welcome back</div>
         <h1 className="mt-2 font-display text-display-md font-semibold text-white">
-          Good evening, Asiamah.
+          {greeting}, {name}.
         </h1>
       </div>
 
       {/* KPIs — client component reads wishlist/cart stores */}
       <AccountKpis />
 
-      {/* Order tracker */}
-      <div className="rounded-3xl border border-white/[0.06] bg-ink-800/60 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="eyebrow">Current order</div>
-            <h2 className="mt-1 font-display text-xl font-semibold text-white">
-              Porsche 911 Carrera
-            </h2>
-          </div>
-          <StatusBadge tone="info" dot>In production</StatusBadge>
-        </div>
-
-        <div className="mt-6 flex items-center">
-          {TRACKER.map((step, i) => {
-            const done = i <= currentStep;
-            const current = i === currentStep;
-            return (
-              <div key={step} className="flex flex-1 items-center last:flex-none">
-                <div className="flex min-w-0 flex-col items-center text-center">
-                  <div
-                    className={cn(
-                      'grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold',
-                      done ? 'bg-white text-ink-900' : 'bg-ink-700 text-ink-200',
-                      current && 'ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900',
-                    )}
-                  >
-                    {done ? <Check className="h-3 w-3" strokeWidth={3} /> : i + 1}
-                  </div>
-                  <span
-                    className={cn(
-                      'mt-2 w-20 text-[10px] leading-tight',
-                      current ? 'font-semibold text-white' : done ? 'text-white' : 'text-ink-300',
-                    )}
-                  >
-                    {step}
-                  </span>
-                </div>
-                {i < TRACKER.length - 1 && (
-                  <div
-                    className={cn(
-                      'mx-3 h-0.5 flex-1',
-                      i < currentStep ? 'bg-white/40' : 'bg-white/[0.08]',
-                    )}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-8 border-t border-white/[0.06] pt-5">
-          {[
-            ['Order #', 'MD-2026-1038'],
-            ['Total', '$123,700'],
-            ['Est. delivery', 'Nov 2, 2026'],
-            ['Dealer', 'mobileDrive Accra'],
-          ].map(([k, v]) => (
-            <div key={k}>
-              <div className="text-[10px] font-medium uppercase tracking-wider text-ink-300">
-                {k}
-              </div>
-              <div className="mt-0.5 text-sm font-medium text-white">{v}</div>
-            </div>
-          ))}
-        </div>
+      {/* Current order — empty until the user has one */}
+      <div className="rounded-3xl border border-white/[0.06] bg-ink-800/60 p-8">
+        <EmptyState
+          title="No orders in flight"
+          description="Once you complete checkout, your order status, estimated delivery and dealer appear here."
+          action={<Link href="/vehicles" className="btn-primary">Browse vehicles</Link>}
+        />
       </div>
 
       {/* Two column */}
@@ -121,25 +73,11 @@ export default async function AccountOverviewPage() {
               View all →
             </Link>
           </div>
-          <div className="space-y-2.5">
-            {[
-              ['BMW · M4 Competition', 'Last edit 2h ago', '$87,700'],
-              ['Tesla · Model S',       'Last edit yesterday', '$108,300'],
-              ['Mercedes-AMG · GT',     'Last edit 3 days ago', '$141,500'],
-            ].map(([title, time, price]) => (
-              <div
-                key={title}
-                className="flex items-center gap-3 rounded-xl bg-ink-700/40 px-3 py-2.5"
-              >
-                <div className="h-11 w-14 shrink-0 rounded-md bg-ink-900" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-white">{title}</div>
-                  <div className="text-[11px] text-ink-200">{time}</div>
-                </div>
-                <div className="shrink-0 text-sm font-semibold text-white">{price}</div>
-              </div>
-            ))}
-          </div>
+          <EmptyState
+            title="No saved builds yet"
+            description="Start a configuration and save it to see it here."
+            action={<Link href="/configure/m4-competition" className="btn-secondary">Open configurator</Link>}
+          />
         </div>
 
         <NextTestDrive {...nextTestDrive} />

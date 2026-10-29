@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Heart, ArrowRight, Trash2, ShoppingBag } from 'lucide-react';
 import { useWishlist } from '@/store/wishlistStore';
+import { toast } from '@/store/toastStore';
 import { getVehicleById, getHeroColor } from '@/lib/vehicles/data';
 import { formatPrice } from '@/lib/utils/format';
 import { EmptyState } from '@/components/ui';
@@ -12,6 +13,15 @@ export function WishlistClient() {
   const hydrated = useWishlist((s) => s.hydrated);
   const remove = useWishlist((s) => s.remove);
   const clear = useWishlist((s) => s.clear);
+
+  function handleRemove(id: string, label: string) {
+    remove(id);
+    toast.info('Removed from wishlist', label, { duration: 3000 });
+  }
+  function handleClear(count: number) {
+    clear();
+    toast.info('Wishlist cleared', `${count} vehicle${count === 1 ? '' : 's'} removed.`);
+  }
 
   if (!hydrated) {
     return (
@@ -47,7 +57,7 @@ export function WishlistClient() {
 
   return (
     <div className="space-y-6">
-      <Header count={vehicles.length} hydrated={true} onClear={clear} />
+      <Header count={vehicles.length} hydrated={true} onClear={() => handleClear(vehicles.length)} />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {vehicles.map((v) => {
@@ -85,7 +95,7 @@ export function WishlistClient() {
 
               <button
                 type="button"
-                onClick={() => remove(v.id)}
+                onClick={() => handleRemove(v.id, `${v.brand} ${v.model}`)}
                 aria-label={`Remove ${v.model} from wishlist`}
                 className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-ink-900/60 text-white backdrop-blur transition hover:bg-ink-900/90"
               >

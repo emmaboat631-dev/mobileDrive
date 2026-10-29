@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SignInForm } from './SignInForm';
+import { GoogleSignInButton } from './GoogleSignInButton';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 
 export const metadata = { title: 'Sign in — mobileDrive' };
@@ -40,26 +41,11 @@ export default function SignInPage({
 
       <div className="my-6 flex items-center gap-4">
         <div className="h-px flex-1 bg-white/10" />
-        <span className="eyebrow">Or continue with</span>
+        <span className="eyebrow">Or</span>
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <div className="grid grid-cols-3 gap-2.5">
-        {[
-          ['Google', 'G'],
-          ['Apple', ''],
-          ['GitHub', '●'],
-        ].map(([name, glyph]) => (
-          <button
-            key={name}
-            type="button"
-            className="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-white/15 text-sm font-medium text-white hover:bg-white/5"
-          >
-            <span>{glyph}</span>
-            {name}
-          </button>
-        ))}
-      </div>
+      <GoogleSignInButton next={next} />
     </AuthLayout>
   );
 }

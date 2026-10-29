@@ -70,7 +70,7 @@ export default function AccountBuildsPage() {
                   <h2 className="mt-1 font-display text-lg font-semibold text-white">
                     {b.v.model}
                   </h2>
-                  <div className="mt-0.5 text-[11px] italic text-ink-200">"{b.label}"</div>
+                  <div className="mt-0.5 text-[11px] italic text-ink-200">&ldquo;{b.label}&rdquo;</div>
                 </div>
                 <div className="shrink-0 text-right">
                   <div className="font-display text-xl font-semibold text-white tabular-nums">

@@ -12,16 +12,11 @@ import { useWishlist } from '@/store/wishlistStore';
 import type { CameraPreset } from '@/store/configuratorStore';
 import { Tag } from '@/components/ui';
 
+import { ViewerLoading } from '@/components/3d/ViewerLoading';
+
 const CarViewer = dynamic(
   () => import('@/components/3d/CarViewer').then((m) => m.CarViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="text-sm text-ink-200">Preparing your vehicle…</div>
-      </div>
-    ),
-  },
+  { ssr: false, loading: () => <ViewerLoading /> },
 );
 
 const TABS = ['Overview', 'Specifications', 'Features', 'Interior', 'Reviews'] as const;
@@ -38,6 +33,19 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
   const [headlightsOn, setHeadlightsOn] = useState(false);
   const activeColor =
     vehicle.availableColors.find((c) => c.id === selectedColorId) ?? defaultColor;
+
+  // Build gallery: hero first, then any extra angles from vehicle.images.
+  const galleryImages: string[] = [
+    ...(vehicle.heroImageUrl ? [vehicle.heroImageUrl] : []),
+    ...vehicle.images.filter((u) => u !== vehicle.heroImageUrl),
+  ];
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const activeImage = galleryImages[activeImageIdx] ?? vehicle.heroImageUrl;
+  const hasGallery = galleryImages.length > 1;
+  // When a vehicle has a 3D model, we start in 3D view and let the 360° button
+  // or any image thumbnail toggle between model and photo.
+  const [view3D, setView3D] = useState<boolean>(Boolean(vehicle.modelPath));
+  const show3D = view3D && Boolean(vehicle.modelPath);
 
   const VIEW_PRESETS: { label: string; preset: CameraPreset }[] = [
     { label: '360°',      preset: 'orbit' },
@@ -60,46 +68,79 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
 
       {/* Hero: 3D stage left, info right */}
       <div className="grid gap-8 lg:grid-cols-[1fr_484px]">
-        <div className="relative h-[560px] overflow-hidden rounded-3xl border border-white/[0.06] bg-ink-800/40">
-          <CarViewer
-            modelPath={vehicle.modelPath}
-            bodyType={vehicle.bodyType}
-            bodyHex={activeColor.hex}
-            bodyFinish={activeColor.finish}
-            wheelStyle={defaultWheel.style}
-            headlightsOn={headlightsOn}
-            autoRotate={preset === 'orbit'}
-            cameraPreset={preset}
-            interactive
-            showFullscreen
-            className="absolute inset-0"
-          />
-          {/* Camera presets */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-5">
-            <div className="flex gap-2">
-              {VIEW_PRESETS.map((v) => (
-                <button
-                  key={v.label}
-                  type="button"
-                  onClick={() => setPreset(v.preset)}
-                  className={cn(
-                    'pointer-events-auto flex h-14 min-w-[64px] items-center justify-center rounded-xl border px-2 text-[11px] font-medium transition',
-                    preset === v.preset
-                      ? 'border-white bg-ink-900/80 text-white backdrop-blur-sm'
-                      : 'border-white/10 bg-ink-900/50 text-ink-100 backdrop-blur-sm hover:border-white/25',
-                  )}
-                >
-                  {v.label}
-                </button>
-              ))}
+        <div
+          className="relative aspect-[4/3] md:aspect-auto md:h-[560px] overflow-hidden rounded-3xl border border-white/[0.06] bg-ink-800/40"
+          style={
+            !show3D && activeImage
+              ? { background: 'radial-gradient(120% 70% at 50% 35%, #1A1C21 0%, #0E0F13 55%, #07080A 100%)' }
+              : undefined
+          }
+        >
+          {/* CarViewer stays mounted so switching to a photo and back doesn't
+              reload the GLB — we just hide it with visibility. The photo
+              overlays on top when image mode is active. */}
+          {vehicle.modelPath && (
+            <div
+              aria-hidden={!show3D}
+              className="absolute inset-0"
+              style={{
+                visibility: show3D ? 'visible' : 'hidden',
+                pointerEvents: show3D ? 'auto' : 'none',
+              }}
+            >
+              <CarViewer
+                modelPath={vehicle.modelPath}
+                bodyType={vehicle.bodyType}
+                bodyHex={activeColor.hex}
+                bodyFinish={activeColor.finish}
+                wheelStyle={defaultWheel.style}
+                headlightsOn={headlightsOn}
+                autoRotate={preset === 'orbit'}
+                cameraPreset={preset}
+                interactive
+                showFullscreen
+                className="absolute inset-0"
+              />
             </div>
+          )}
+          {!show3D && activeImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activeImage}
+                alt={`${vehicle.brand} ${vehicle.model}`}
+                className="absolute inset-x-0 bottom-[10%] top-[10%] mx-auto h-[80%] w-full object-contain"
+              />
+              <div
+                className="pointer-events-none absolute left-1/2 bottom-[14%] h-5 w-[60%] -translate-x-1/2 rounded-[50%] opacity-70 blur-lg"
+                style={{ background: 'rgba(0,0,0,0.7)' }}
+                aria-hidden
+              />
+            </>
+          )}
+          {!vehicle.modelPath && (
+            <CarViewer
+              bodyType={vehicle.bodyType}
+              bodyHex={activeColor.hex}
+              bodyFinish={activeColor.finish}
+              wheelStyle={defaultWheel.style}
+              headlightsOn={headlightsOn}
+              autoRotate={preset === 'orbit'}
+              cameraPreset={preset}
+              interactive
+              showFullscreen
+              className="absolute inset-0"
+            />
+          )}
+          {/* Headlights button — only relevant in 3D mode */}
+          {show3D && (
             <button
               type="button"
               onClick={() => setHeadlightsOn((v) => !v)}
               aria-pressed={headlightsOn}
               aria-label="Toggle headlights"
               className={cn(
-                'pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-sm transition',
+                'pointer-events-auto absolute right-5 bottom-24 z-20 flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-sm transition',
                 headlightsOn
                   ? 'border-white bg-white text-ink-900'
                   : 'border-white/10 bg-ink-900/50 text-ink-100 hover:border-white/25',
@@ -107,7 +148,41 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
             >
               <Lightbulb className="h-4 w-4" />
             </button>
-          </div>
+          )}
+          {(hasGallery || vehicle.modelPath) && (
+            <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 flex items-center justify-start gap-2 overflow-x-auto bg-gradient-to-t from-ink-900/80 to-transparent p-3 md:justify-center">
+              {vehicle.modelPath && (
+                <button
+                  type="button"
+                  onClick={() => setView3D(true)}
+                  aria-label="Show 3D model"
+                  aria-pressed={show3D}
+                  className={cn(
+                    'relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border text-[11px] font-medium transition md:h-14 md:w-20',
+                    show3D ? 'border-white bg-white/10 text-white ring-1 ring-white/60' : 'border-white/15 bg-ink-900/60 text-ink-100 opacity-80 hover:opacity-100',
+                  )}
+                >
+                  360°
+                </button>
+              )}
+              {galleryImages.map((url, i) => (
+                <button
+                  key={url + i}
+                  type="button"
+                  onClick={() => { setActiveImageIdx(i); setView3D(false); }}
+                  aria-label={`Show image ${i + 1}`}
+                  aria-pressed={!show3D && i === activeImageIdx}
+                  className={cn(
+                    'relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border transition md:h-14 md:w-20',
+                    !show3D && i === activeImageIdx ? 'border-white ring-1 ring-white/60' : 'border-white/15 opacity-60 hover:opacity-100',
+                  )}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <aside className="flex flex-col gap-6">
@@ -176,8 +251,8 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <div className="grid grid-cols-2 gap-2.5">
-                <Link href={`/test-drive/${vehicle.id}`} className="btn-secondary w-full">
-                  Book Test Drive
+                <Link href={`/test-drive/${vehicle.id}`} className="btn-secondary w-full whitespace-nowrap">
+                  Test Drive
                 </Link>
                 <Link href={`/compare?v=${vehicle.id}`} className="btn-secondary w-full">
                   <Plus className="h-4 w-4" />
@@ -306,27 +381,39 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
       {tab === 'Specifications' && (
         <div className="mt-10 grid gap-10 lg:grid-cols-2">
           <SpecGroup
-            title="Powertrain"
+            title="Performance"
             rows={[
               ['Horsepower', `${vehicle.horsepower} HP`],
               ['0–100 km/h', `${vehicle.acceleration.toFixed(1)} s`],
               ['Top speed', `${vehicle.topSpeed} km/h`],
-              ['Fuel', vehicle.fuelType],
-              vehicle.rangeKm ? ['Electric range', `${vehicle.rangeKm} km`] : null,
-              ['Transmission', vehicle.transmission],
-              ['Drive', vehicle.driveType],
+              ['Power-to-weight', `~${Math.round(vehicle.horsepower / 1.5)} HP/t`],
             ]}
           />
           <SpecGroup
-            title="Body & dimensions"
+            title="Drivetrain"
+            rows={[
+              ['Fuel', vehicle.fuelType],
+              ['Transmission', vehicle.transmission],
+              ['Drive type', vehicle.driveType],
+              vehicle.rangeKm ? ['Electric range', `${vehicle.rangeKm} km`] : null,
+            ]}
+          />
+          <SpecGroup
+            title="Build options"
+            rows={[
+              ['Paint finishes', String(vehicle.availableColors.length)],
+              ['Wheel designs', String(vehicle.availableWheels.length)],
+              ['Interior trims', String(vehicle.availableInteriors.length)],
+              ['Available packages', String(vehicle.availablePackages.length)],
+            ]}
+          />
+          <SpecGroup
+            title="Classification"
             rows={[
               ['Body type', vehicle.bodyType],
-              ['Brand', vehicle.brand],
-              ['Model', vehicle.model],
               ['Model year', String(vehicle.year)],
-              ['Available paints', String(vehicle.availableColors.length)],
-              ['Available wheels', String(vehicle.availableWheels.length)],
-              ['Available interiors', String(vehicle.availableInteriors.length)],
+              ['Starting price', formatPrice(vehicle.price, vehicle.currency)],
+              ['Warranty', '3-year factory'],
             ]}
           />
         </div>
@@ -376,8 +463,8 @@ export function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
           <div>
             <h2 className="font-display text-2xl font-semibold text-white">Trim options</h2>
             <p className="mt-3 max-w-md text-sm text-ink-200">
-              Four interior trims are available. Select a trim in the configurator to see
-              materials and stitching in context.
+              {vehicle.availableInteriors.length} interior {vehicle.availableInteriors.length === 1 ? 'trim is' : 'trims are'} available.
+              Select one in the configurator to see materials and stitching in context.
             </p>
             <Link
               href={`/configure/${vehicle.id}`}

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Plus, CalendarClock } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
-import { KpiRow, StatusBadge } from '@/components/ui';
+import { KpiRow, StatusBadge, DemoBadge } from '@/components/ui';
 
 const UPCOMING = [
   { day: 7,  month: 'Oct', when: '09:30', buyer: 'Asiamah Joshua', vehicle: 'Porsche 911 Carrera',   confirmed: true },
@@ -29,7 +29,10 @@ export default function DealerDashboardPage() {
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
-          <div className="eyebrow">Dealer dashboard</div>
+          <div className="flex items-center gap-3">
+            <div className="eyebrow">Dealer dashboard</div>
+            <DemoBadge note="KPIs + upcoming list are illustrative. /dealer/bookings is live." />
+          </div>
           <h1 className="mt-2 font-display text-display-md font-semibold text-white">
             Good morning, Accra.
           </h1>

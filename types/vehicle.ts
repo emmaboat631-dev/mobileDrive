@@ -59,6 +59,7 @@ export interface Vehicle {
   description: string;
   features: string[];
   images: string[];
+  heroImageUrl?: string;
   modelPath?: string;
   /** Which paint from `availableColors` represents this vehicle in cards, compare and marketing. */
   heroColorId: string;

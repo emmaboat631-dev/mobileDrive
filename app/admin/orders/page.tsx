@@ -1,33 +1,17 @@
 import Link from 'next/link';
 import { ArrowUpRight, Search, Download } from 'lucide-react';
-import { formatPrice } from '@/lib/utils/format';
-import { DataTable, StatusBadge, statusTone } from '@/components/ui';
+import { formatPrice, relativeTime } from '@/lib/utils/format';
+import { DataTable, StatusBadge, statusTone, EmptyState } from '@/components/ui';
+import { fetchOrders, type OrderRow } from '@/lib/admin/queries';
 
 export const metadata = { title: 'Orders — Admin · mobileDrive' };
+export const dynamic = 'force-dynamic';
 
-interface OrderRow {
-  id: string;
-  buyer: string;
-  vehicle: string;
-  paid: number;
-  status: 'Pending' | 'Production' | 'Shipping' | 'Delivered' | 'Cancelled';
-  payment: string;
-  when: string;
-}
-
-const ORDERS: OrderRow[] = [
-  { id: 'MD-2026-1038', buyer: 'Asiamah Joshua', vehicle: 'Porsche 911 Carrera',    paid: 123700, status: 'Production', payment: 'Card',       when: '2h ago' },
-  { id: 'MD-2026-1037', buyer: 'Nia Mensah',      vehicle: 'BMW M4 Competition',    paid: 87700,  status: 'Shipping',   payment: 'MTN MoMo',   when: 'Yesterday' },
-  { id: 'MD-2026-1036', buyer: 'Kojo Boateng',    vehicle: 'Tesla Model S',         paid: 108300, status: 'Delivered',  payment: 'Paystack',   when: '2 days ago' },
-  { id: 'MD-2026-1035', buyer: 'Ama Owusu',       vehicle: 'Audi RS6 Avant',        paid: 141500, status: 'Pending',    payment: 'Card',       when: '3 days ago' },
-  { id: 'MD-2026-1034', buyer: 'Yaw Ampah',       vehicle: 'Mercedes-AMG GT',       paid: 142800, status: 'Production', payment: 'Card',       when: '4 days ago' },
-  { id: 'MD-2026-1033', buyer: 'Serwaa Appiah',   vehicle: 'Range Rover Sport',     paid: 112400, status: 'Shipping',   payment: 'Telecel',    when: '5 days ago' },
-  { id: 'MD-2026-1032', buyer: 'Kwesi Darko',     vehicle: 'BMW M4 Competition',    paid: 94300,  status: 'Delivered',  payment: 'Paystack',   when: '1 week ago' },
-  { id: 'MD-2026-1031', buyer: 'Afia Kusi',       vehicle: 'Porsche 911 Carrera',   paid: 128900, status: 'Cancelled',  payment: 'Refunded',   when: '1 week ago' },
-];
-
-export default function AdminOrdersPage() {
-  const paid = ORDERS.filter((o) => o.status !== 'Cancelled').reduce((s, o) => s + o.paid, 0);
+export default async function AdminOrdersPage() {
+  const ORDERS = await fetchOrders(50);
+  const paid = ORDERS
+    .filter((o) => o.status !== 'cancelled')
+    .reduce((s, o) => s + o.grand_total, 0);
 
   return (
     <div className="space-y-6">
@@ -74,17 +58,24 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      <DataTable<OrderRow>
+      {ORDERS.length === 0 && (
+        <EmptyState
+          title="No orders yet"
+          description="Orders will show up here as soon as a customer completes checkout."
+        />
+      )}
+
+      {ORDERS.length > 0 && <DataTable<OrderRow>
         rows={ORDERS}
         getKey={(o) => o.id}
         columns={[
-          { key: 'id',       header: 'Order',    render: (o) => <span className="font-medium text-white">{o.id}</span> },
-          { key: 'buyer',    header: 'Customer', render: (o) => o.buyer },
-          { key: 'vehicle',  header: 'Vehicle',  render: (o) => o.vehicle },
-          { key: 'amount',   header: 'Amount',   tabular: true, render: (o) => <span className="font-medium text-white">{formatPrice(o.paid)}</span> },
-          { key: 'payment',  header: 'Payment',  render: (o) => <span className="text-ink-200">{o.payment}</span> },
+          { key: 'id',       header: 'Order',    render: (o) => <span className="font-medium text-white">{o.id.slice(0, 8)}</span> },
+          { key: 'buyer',    header: 'Customer', render: (o) => o.buyer_name ?? o.buyer_email ?? '—' },
+          { key: 'vehicle',  header: 'Vehicle',  render: (o) => o.items_summary || '—' },
+          { key: 'amount',   header: 'Amount',   tabular: true, render: (o) => <span className="font-medium text-white">{formatPrice(o.grand_total)}</span> },
+          { key: 'payment',  header: 'Payment',  render: (o) => <span className="text-ink-200">{o.payment_method}</span> },
           { key: 'status',   header: 'Status',   render: (o) => <StatusBadge tone={statusTone(o.status)}>{o.status}</StatusBadge> },
-          { key: 'when',     header: 'When',     render: (o) => <span className="text-ink-200">{o.when}</span> },
+          { key: 'when',     header: 'When',     render: (o) => <span className="text-ink-200">{relativeTime(o.created_at)}</span> },
           {
             key: 'open',
             header: '',
@@ -100,7 +91,7 @@ export default function AdminOrdersPage() {
             ),
           },
         ]}
-      />
+      />}
     </div>
   );
 }

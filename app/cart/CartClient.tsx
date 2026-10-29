@@ -3,12 +3,18 @@
 import Link from 'next/link';
 import { ArrowRight, Edit3, Heart, Trash2, ShoppingBag } from 'lucide-react';
 import { cartTotals, resolveLine, useCart } from '@/store/cartStore';
+import { toast } from '@/store/toastStore';
 import { formatPrice } from '@/lib/utils/format';
 
 export function CartClient() {
   const items = useCart((s) => s.items);
   const hydrated = useCart((s) => s.hydrated);
   const remove = useCart((s) => s.remove);
+
+  function handleRemove(id: string, label: string) {
+    remove(id);
+    toast.info('Removed from cart', label, { duration: 3000 });
+  }
 
   // Avoid hydration mismatch: show a stable placeholder until the client store has rehydrated.
   if (!hydrated) {
@@ -108,7 +114,7 @@ export function CartClient() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => remove(it.id)}
+                    onClick={() => handleRemove(it.id, `${it.vehicle.brand} ${it.vehicle.model}`)}
                     className="inline-flex items-center gap-1.5 text-ink-100 hover:text-white"
                   >
                     <Trash2 className="h-3 w-3" />

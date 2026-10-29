@@ -16,14 +16,14 @@ export function AccountKpis() {
   const cartHydrated = useCart((s) => s.hydrated);
 
   const tiles = [
-    { label: 'ACTIVE BUILDS', value: '3', hint: 'Last edit 2h ago', color: 'text-white' },
+    { label: 'ACTIVE BUILDS', value: '0', hint: 'None saved yet', color: 'text-white' },
     {
       label: 'WISHLIST',
       value: wishlistHydrated ? String(wishlistCount) : '—',
       hint: 'Vehicles saved',
       color: 'text-white',
     },
-    { label: 'ORDERS', value: '1', hint: 'In production', color: 'text-emerald-400' },
+    { label: 'ORDERS', value: '0', hint: 'No orders yet', color: 'text-white' },
     { label: 'CART',   value: cartHydrated ? String(cartCount) : '—', hint: 'Ready to checkout', color: 'text-white' },
   ];
 

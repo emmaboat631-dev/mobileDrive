@@ -31,7 +31,7 @@ export function SignUpForm() {
               Check your email
             </div>
             <p className="mt-1 text-sm text-ink-100">
-              We've sent you a confirmation link. Click it to activate your account, then come back to sign in.
+              We&apos;ve sent you a confirmation link. Click it to activate your account, then come back to sign in.
             </p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export function SignUpForm() {
           name="full_name"
           autoComplete="name"
           required
-          placeholder="Asiamah Joshua"
+          placeholder="Emmanuel Boateng"
           className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-ink-700 px-5 text-sm text-white placeholder:text-ink-300 focus:border-white/30 focus:outline-none"
         />
       </label>
