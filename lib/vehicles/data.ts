@@ -47,7 +47,7 @@ const COMMON_PACKAGES = [
 export const VEHICLES: Vehicle[] = [
   {
     id: 'ford-mustang',
-    modelPath: '/models/ford-mustang.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/ford-mustang/model.glb',
     brand: 'Ford',
     model: 'Mustang GT',
     year: 2025,
@@ -72,7 +72,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'dodge-challenger',
-    modelPath: '/models/dodge-challenger.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/dodge-challenger/model.glb',
     brand: 'Dodge',
     model: 'Challenger SRT Hellcat',
     year: 2023,
@@ -97,7 +97,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'toyota-supra',
-    modelPath: '/models/toyota-supra.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/toyota-supra/model.glb',
     brand: 'Toyota',
     model: 'GR Supra',
     year: 2025,
@@ -122,7 +122,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'toyota-land-cruiser',
-    modelPath: '/models/toyota-land-cruiser.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/toyota-land-cruiser/model.glb',
     brand: 'Toyota',
     model: 'Land Cruiser',
     year: 2025,
@@ -147,7 +147,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'chevrolet-corvette',
-    modelPath: '/models/chevrolet-corvette.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/chevrolet-corvette/model.glb',
     brand: 'Chevrolet',
     model: 'Corvette Z06',
     year: 2025,
@@ -172,7 +172,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'lamborghini-aventador',
-    modelPath: '/models/lamborghini-aventador.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/lamborghini-aventador/model.glb',
     brand: 'Lamborghini',
     model: 'Aventador SVJ',
     year: 2022,
@@ -197,7 +197,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'm4-competition',
-    modelPath: '/models/m4-competition.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/m4-competition/model.glb',
     brand: 'BMW',
     model: 'M4 Competition',
     year: 2025,
@@ -222,7 +222,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'porsche-911',
-    modelPath: '/models/porsche-911.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/porsche-911/model.glb',
     brand: 'Porsche',
     model: '911 Carrera',
     year: 2025,
@@ -246,7 +246,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'tesla-model-s',
-    modelPath: '/models/tesla-model-s.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/tesla-model-s/model.glb',
     brand: 'Tesla',
     model: 'Model S',
     year: 2025,
@@ -271,7 +271,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'amg-gt',
-    modelPath: '/models/amg-gt.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/amg-gt/model.glb',
     brand: 'Mercedes-AMG',
     model: 'GT',
     year: 2025,
@@ -295,7 +295,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'audi-rs6',
-    modelPath: '/models/audi-rs6.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/audi-rs6/model.glb',
     brand: 'Audi',
     model: 'RS6 Avant',
     year: 2025,
@@ -319,7 +319,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'range-rover-sport',
-    modelPath: '/models/range-rover-sport.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/range-rover-sport/model.glb',
     brand: 'Range Rover',
     model: 'Sport',
     year: 2025,
@@ -343,7 +343,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'porsche-taycan',
-    modelPath: '/models/porsche-taycan.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/porsche-taycan/model.glb',
     brand: 'Porsche',
     model: 'Taycan Turbo S',
     year: 2025,
@@ -368,7 +368,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'bmw-i7',
-    modelPath: '/models/bmw-i7.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/bmw-i7/model.glb',
     brand: 'BMW',
     model: 'i7 M70',
     year: 2025,
@@ -393,7 +393,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'mercedes-s580',
-    modelPath: '/models/mercedes-s580.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/mercedes-s580/model.glb',
     brand: 'Mercedes-Benz',
     model: 'S 580',
     year: 2025,
@@ -417,7 +417,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'bmw-x5m',
-    modelPath: '/models/bmw-x5m.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/bmw-x5m/model.glb',
     brand: 'BMW',
     model: 'X5 M Competition',
     year: 2025,
@@ -441,7 +441,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'audi-q8',
-    modelPath: '/models/audi-q8.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/audi-q8/model.glb',
     brand: 'Audi',
     model: 'Q8 e-tron',
     year: 2025,
@@ -466,7 +466,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'tesla-model-y',
-    modelPath: '/models/tesla-model-y.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/tesla-model-y/model.glb',
     brand: 'Tesla',
     model: 'Model Y Performance',
     year: 2025,
@@ -491,7 +491,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'ford-raptor',
-    modelPath: '/models/ford-raptor.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/ford-raptor/model.glb',
     brand: 'Ford',
     model: 'F-150 Raptor R',
     year: 2025,
@@ -515,7 +515,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'ram-trx',
-    modelPath: '/models/ram-trx.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/ram-trx/model.glb',
     brand: 'RAM',
     model: '1500 TRX',
     year: 2025,
@@ -539,7 +539,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'bmw-m3-touring',
-    modelPath: '/models/bmw-m3-touring.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/bmw-m3-touring/model.glb',
     brand: 'BMW',
     model: 'M3 Touring',
     year: 2025,
@@ -563,7 +563,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'mercedes-e63-wagon',
-    modelPath: '/models/mercedes-e63-wagon.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/mercedes-e63-wagon/model.glb',
     brand: 'Mercedes-AMG',
     model: 'E 63 S Estate',
     year: 2025,
@@ -587,7 +587,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'porsche-cayman-gt4',
-    modelPath: '/models/porsche-cayman-gt4.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/porsche-cayman-gt4/model.glb',
     brand: 'Porsche',
     model: '718 Cayman GT4 RS',
     year: 2025,
@@ -611,7 +611,7 @@ export const VEHICLES: Vehicle[] = [
   },
   {
     id: 'lotus-emira',
-    modelPath: '/models/lotus-emira.glb',
+    modelPath: 'https://pwjxrbzmflpepjtxogjv.supabase.co/storage/v1/object/public/vehicle-media/vehicles/lotus-emira/model.glb',
     brand: 'Lotus',
     model: 'Emira V6',
     year: 2025,

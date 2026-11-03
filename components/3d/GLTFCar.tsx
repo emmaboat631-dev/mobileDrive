@@ -30,7 +30,9 @@ export function GLTFCar({
   autoRotate = false,
 }: GLTFCarProps) {
   const group = useRef<THREE.Group>(null);
-  const { scene } = useGLTF(modelPath);
+  // Third arg = useMeshopt. Enables Meshopt decoding so .glb files we
+  // optimized with gltf-transform (the big ones) load correctly.
+  const { scene } = useGLTF(modelPath, undefined, true);
 
   // Auto-fit the model: center at origin, scale so the longest axis = TARGET.
   // Different asset sources ship wildly different scales, so normalize once.
