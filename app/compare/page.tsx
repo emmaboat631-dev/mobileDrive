@@ -1,6 +1,8 @@
 import { listVehiclesWithHeroes } from '@/lib/vehicles/server-data';
 import { CompareClient } from './CompareClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Compare — mobileDrive' };
 
 const DEFAULT_IDS = ['chevrolet-corvette', 'lamborghini-aventador', 'porsche-taycan'];

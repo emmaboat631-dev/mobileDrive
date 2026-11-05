@@ -4,6 +4,8 @@ import { ScrollShowcase } from '@/components/home/ScrollShowcase';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function HomePage() {
   return (
     <>

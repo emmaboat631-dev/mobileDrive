@@ -3,6 +3,8 @@ import { getVehicleById, listVehicles } from '@/lib/vehicles/data';
 import { listVehiclesWithHeroes } from '@/lib/vehicles/server-data';
 import { VehicleDetailClient } from './VehicleDetailClient';
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return listVehicles().map((v) => ({ id: v.id }));
 }

@@ -5,6 +5,11 @@ export const metadata = {
   title: 'Vehicles — mobileDrive',
 };
 
+// Pull hero_image_url + gallery_image_urls from Supabase on every request —
+// otherwise Next.js pre-renders this at build time, when the DB wasn't
+// reachable, and bakes in the dummy fallback forever.
+export const dynamic = 'force-dynamic';
+
 export default async function VehiclesPage() {
   const vehicles = await listVehiclesWithHeroes();
 
